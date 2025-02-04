@@ -5,14 +5,25 @@
       <p class="text-6xl font-k2d">Bookseek</p>
     </div>
     <Search />
-
   </main>
+
+  <ul>
+    <li v-for="book in booksStore.book" :key="book.id">{{ book.title}} from {{ book.authors.map(author => author.name).join(', ') }}</li>
+  </ul>
+
 </template>
 
 <script setup lang="ts">
-import Search from '@/components/search.vue'
+import Search from '@/components/search.vue';
 import { Icon } from "@iconify/vue";
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue';
+import { useBooksStore } from '@/stores/books';
+
+const booksStore = useBooksStore();
 
 const input = ref('')
+
+onMounted(() => {
+  booksStore.fetchBooks();
+});
 </script>
