@@ -13,8 +13,6 @@ export const useBooksStore = defineStore('books', () => {
       .catch((error) => {
         console.error('Error fetching books:', error)
       })
-
-      console.log("boobkValue" , book.value)
   }
 
   return { book, fetchBooks }

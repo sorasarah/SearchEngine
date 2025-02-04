@@ -8,7 +8,9 @@
   </main>
 
   <ul>
-    <li v-for="book in booksStore.book" :key="book.id">{{ book.title}} from {{ book.authors.map(author => author.name).join(', ') }}</li>
+    <li v-for="book in booksStore.book" :key="book.id">
+      <BookCard :book="book" />
+    </li>
   </ul>
 
 </template>
@@ -18,6 +20,7 @@ import Search from '@/components/search.vue';
 import { Icon } from "@iconify/vue";
 import { ref, onMounted } from 'vue';
 import { useBooksStore } from '@/stores/books';
+import BookCard from '@/components/bookCard.vue';
 
 const booksStore = useBooksStore();
 
