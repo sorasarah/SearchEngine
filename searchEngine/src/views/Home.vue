@@ -6,12 +6,13 @@
     </div>
     <Search />
   </main>
-
-  <ul>
-    <li v-for="book in booksStore.books" :key="book.id">
-      <BookCard :book=book />
-    </li>
-  </ul>
+<div class="container mx-auto p-4">
+  <div class="grid grid-cols-3 gap-6">
+    <div class="" v-for="book in booksStore.books" :key="book.id">
+      <BookCard :book=book  />
+    </div>
+  </div>
+</div>
 
 </template>
 
