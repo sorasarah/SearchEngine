@@ -3,17 +3,17 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 
 export const useBooksStore = defineStore('books', () => {
-  const book = ref("")
+  const books = ref("")
 
   function fetchBooks() {
     axios.get('https://gutendex.com/books/')
       .then((response) => {
-        book.value = response.data.results.filter((item: any) => item.languages.includes('en'))
+        books.value = response.data.results.filter((item: any) => item.languages.includes('en'))
       })
       .catch((error) => {
         console.error('Error fetching books:', error)
       })
   }
 
-  return { book, fetchBooks }
+  return { books, fetchBooks }
 })

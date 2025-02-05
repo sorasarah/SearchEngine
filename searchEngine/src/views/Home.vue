@@ -8,8 +8,8 @@
   </main>
 
   <ul>
-    <li v-for="book in booksStore.book" :key="book.id">
-      <BookCard :book="book" />
+    <li v-for="book in booksStore.books" :key="book.id">
+      <BookCard :book=book />
     </li>
   </ul>
 

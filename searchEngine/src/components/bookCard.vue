@@ -7,7 +7,7 @@
                 <h3> {{ book.authors.map(author => author.name).join(', ') }}</h3>
             </div>
             <p class="text-gray-700 text-base">
-                {{  book.summaries.map(summary => summary.content).join(', ') }}
+                {{  book.summaries.join(', ') }}
             </p>
         </div>
         <div class="px-6 pt-4 pb-2">
@@ -22,16 +22,14 @@
 </template>
 
 <script setup lang="ts">
-    import { Icon } from "@iconify/vue";
-    import { ref } from 'vue';
-    import { defineProps } from '@/stores/books';
+    import { defineProps } from 'vue';
 
     const props = defineProps<{
   book: {
     title: string;
     authors: { name: string }[];
-    summaries: string;
-    formats: string;
+    summaries: string[];
+    formats: { 'image/jpeg': string };
   };
 }>()
 
