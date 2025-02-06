@@ -21,13 +21,15 @@
 
       <!-- Button (Aligned to Bottom) -->
       <div class="p-4 text-center">
-        <button class="bg-gray-500 text-white px-4 py-2 rounded-lg w-full">Consulter</button>
+        <button class="bg-gray-500 text-white px-4 py-2 rounded-lg w-full transition-transform duration-300 ease-in-out hover:bg-gray-700 hover:text-xl" @click="goToBook(book)">Consulter</button>
       </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue';
+import { useBooksStore } from '@/stores/books';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps<{
   book: {
@@ -37,4 +39,16 @@ const props = defineProps<{
     formats: { 'image/jpeg'?: string };
   };
 }>();
+
+const booksStore = useBooksStore();
+const router = useRouter();
+
+const goToBook = (book: any) => {
+  booksStore.setSelectedBook(book);
+  router.push({ name: 'book', params: { id: book.id } });
+};
 </script>
+
+<style scoped>
+  
+</style>

@@ -4,13 +4,13 @@
       <Icon icon="material-symbols-light:book-5" class="text-6xl text-primary-500" />
       <p class="text-6xl font-k2d">Bookseek</p>
     </div>
-    <Search />
+    <Search v-model:search="searchQuery"  @updateResults="updateBooks"/>
   </main>
 
 <div class="container mx-auto p-4">
   <div class="grid grid-cols-3 gap-6">
     <div class="" v-for="book in booksStore.books" :key="book.id">
-      <BookCard :book=book  />
+      <BookCard :book=book />
     </div>
   </div>
 </div>
@@ -23,19 +23,17 @@ import { Icon } from "@iconify/vue";
 import { ref, onMounted } from 'vue';
 import { useBooksStore } from '@/stores/books';
 import BookCard from '@/components/bookCard.vue';
-import { useRouter } from 'vue-router';
 
 const booksStore = useBooksStore();
-const router = useRouter();
-const input = ref('');
+const searchQuery = ref('');
+const filteredBooks = ref<any[]>([]);
 
 onMounted(() => {
   booksStore.fetchBooks();
 });
 
-const goToBook = (book: any) => {
-  booksStore.setSelectedBook(book);
-  router.push({ name: 'book', params: { id: book.id } });
-};
+const updateBooks = (books: any[]) => {
+  filteredBooks.value = books;
+}
 
 </script>
