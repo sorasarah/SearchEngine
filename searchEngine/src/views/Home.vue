@@ -7,11 +7,13 @@
     <Search />
   </main>
 
-  <div class="books-list">
-    <div v-for="book in booksStore.books" :key="book.id">
-      <BookCard :book="book" @click="goToBook(book)"/>
+<div class="container mx-auto p-4">
+  <div class="grid grid-cols-3 gap-6">
+    <div class="" v-for="book in booksStore.books" :key="book.id">
+      <BookCard :book=book  />
     </div>
   </div>
+</div>
 
 </template>
 
@@ -37,9 +39,3 @@ const goToBook = (book: any) => {
 };
 
 </script>
-
-<style scoped>
-.books-list {
-  display: flex;
-}
-</style>
