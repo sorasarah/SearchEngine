@@ -1,38 +1,29 @@
+<!-- filepath: /Users/sarahsarah/Desktop/CFA-INSTA/MoteurDeRecherche/M2R/searchEngine/src/views/BookReader.vue -->
 <template>
-  <div :class="{ 'dark-mode': isDarkMode }">
-    <div>
-      <button @click="goBack" class="back-button">Retour</button>
-      <button @click="toggleDarkMode" class="mode-toggle">
-        <Icon :icon="isDarkMode ? 'mdi:weather-sunny' : 'mdi:weather-night'" class="text-2xl" />
-      </button>
-      <button @click="goHome" class="home-button">Accueil</button>
-    </div>
-    <div class="book-reader">
-      <h1 class="book-title">{{ book?.title || 'Titre Inconnu' }}</h1>
-      <div class="book-content-container">
+  <div class="min-h-screen bg-gray-100 text-gray-900">
+    <div class="pt-20 book-reader">
+      <h1 class="book-title text-3xl font-bold text-center my-6">{{ book?.title || 'Titre Inconnu' }}</h1>
+      <div class="book-content-container relative flex items-center justify-center mx-auto p-4 border border-gray-300 bg-white shadow-lg rounded-lg">
         <div class="nav-button left" @click="previousPage">&#60;</div>
-        <div class="book-content">{{ currentText }}</div>
+        <div class="book-content text-lg leading-relaxed">{{ currentText }}</div>
         <div class="nav-button right" @click="nextPage">&#62;</div>
       </div>
-      <p class="pagination">Page {{ currentPage }} / {{ totalPages }}</p>
+      <p class="pagination text-center mt-4">Page {{ currentPage }} / {{ totalPages }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useBooksStore } from '@/stores/books';
-import { Icon } from '@iconify/vue';
 
-const router = useRouter();
 const route = useRoute();
 const booksStore = useBooksStore();
 const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'));
 const content = ref('');
 const currentPage = ref(1);
 const charsPerPage = 500;
-const isDarkMode = ref(localStorage.getItem('darkMode') === 'true');
 
 onMounted(() => {
   const bookId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
@@ -60,19 +51,6 @@ function previousPage() {
     currentPage.value--;
   }
 }
-
-function goBack() {
-  router.push({ name: 'book', params: { id: route.params.id } });
-}
-
-function goHome() {
-  router.push({ name: 'home' });
-}
-
-function toggleDarkMode() {
-  isDarkMode.value = !isDarkMode.value;
-  localStorage.setItem('darkMode', isDarkMode.value);
-}
 </script>
 
 <style scoped>
@@ -82,47 +60,22 @@ function toggleDarkMode() {
 }
 
 .dark-mode {
-  --bg-color: black;
+  --bg-color: #1e1e1e;
   --text-color: white;
-}
-
-body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
 }
 
 .book-reader {
   text-align: center;
   padding: 20px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
-
-.mode-toggle {
-  position: absolute;
-  top: 20px;
-  right: 50%;
-  transform: translateX(50%);
-  padding: 10px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.back-button, .home-button {
-  position: absolute;
-  top: 20px;
-  padding: 10px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.back-button { left: 20px; }
-.home-button { right: 20px; }
 
 .book-title {
   margin-top: 40px;
   font-size: 24px;
   font-weight: bold;
+  color: var(--text-color);
 }
 
 .book-content-container {
@@ -136,6 +89,7 @@ body {
   padding: 20px;
   border: 1px solid #ccc;
   background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 .book-content {
@@ -148,31 +102,33 @@ body {
 
 .nav-button {
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 36px;
   font-weight: bold;
   border-radius: 50%;
   cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.3s;
-  background-color: var(--text-color);
-  color: var(--bg-color);
+  opacity: 0.5;
+  transition: opacity 0.3s, transform 0.3s;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .nav-button:hover {
   opacity: 1;
+  transform: translateY(-2px);
 }
 
 .left {
-  left: -60px;
+  left: -80px;
 }
 
 .right {
-  right: -60px;
+  right: -80px;
 }
 
 .pagination {

@@ -9,11 +9,11 @@
     <Input v-model:search="searchQuery" @updateResults="updateBooks" />
   </main>
 
-
   <!-- Display Matching Book Cards -->
   <div class="container mx-auto p-4">
     <div v-if="filteredBooks.length" class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <BookCard v-for="book in filteredBooks" :key="book.id" :book="book" />
+
     </div>
     <!-- <div class="" v-for="book in booksStore.books" :key="book.id">
       <BookCard :book=book  />
@@ -27,20 +27,20 @@ import { Icon } from "@iconify/vue";
 import { ref, onMounted } from 'vue';
 import { useBooksStore } from '@/stores/books';
 import BookCard from '@/components/bookCard.vue';
-import { useRouter } from 'vue-router';
 
 const booksStore = useBooksStore();
+const searchQuery = ref('');
+const filteredBooks = ref<any[]>([]);
 const router = useRouter();const searchQuery = ref("");
-const filteredBooks = ref([]); // Store list of matching books;
+
 
 onMounted(() => {
   booksStore.fetchBooks();
 });
 
-const goToBook = (book: any) => {
-  booksStore.setSelectedBook(book);
-  router.push({ name: 'book', params: { id: book.id } });
-};
+const updateBooks = (books: any[]) => {
+  filteredBooks.value = books;
+}
 
 
 // Update displayed books when the search results change

@@ -1,6 +1,5 @@
 <template>
   <div class="container mx-auto p-6">
-    <button @click="goHome" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Retour</button>
     <div class="text-center mt-4">
       <h1 class="text-3xl font-bold">{{ book?.title }}</h1>
     </div>
@@ -42,11 +41,15 @@ onMounted(() => {
   }
 });
 
-function goHome() {
-  router.push({ path: '/' });
-}
+// function goHome() {
+//   router.push({ path: '/' });
+// }
 
 function goToReader() {
   router.push({ name: 'bookReader', params: { id: book.value?.id } });
 }
 </script>
+
+<style scoped>
+
+</style>
