@@ -6,6 +6,7 @@
     </div>
     <Search />
   </main>
+
 <div class="container mx-auto p-4">
   <div class="grid grid-cols-3 gap-6">
     <div class="" v-for="book in booksStore.books" :key="book.id">
@@ -22,12 +23,19 @@ import { Icon } from "@iconify/vue";
 import { ref, onMounted } from 'vue';
 import { useBooksStore } from '@/stores/books';
 import BookCard from '@/components/bookCard.vue';
+import { useRouter } from 'vue-router';
 
 const booksStore = useBooksStore();
-
-const input = ref('')
+const router = useRouter();
+const input = ref('');
 
 onMounted(() => {
   booksStore.fetchBooks();
 });
+
+const goToBook = (book: any) => {
+  booksStore.setSelectedBook(book);
+  router.push({ name: 'book', params: { id: book.id } });
+};
+
 </script>
