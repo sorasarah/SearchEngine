@@ -7,11 +7,11 @@
     <Search />
   </main>
 
-  <ul>
-    <li v-for="book in booksStore.books" :key="book.id">
-      <BookCard :book=book />
-    </li>
-  </ul>
+  <div class="books-list">
+    <div v-for="book in booksStore.books" :key="book.id">
+      <BookCard :book="book" @click="goToBook(book)"/>
+    </div>
+  </div>
 
 </template>
 
@@ -21,12 +21,25 @@ import { Icon } from "@iconify/vue";
 import { ref, onMounted } from 'vue';
 import { useBooksStore } from '@/stores/books';
 import BookCard from '@/components/bookCard.vue';
+import { useRouter } from 'vue-router';
 
 const booksStore = useBooksStore();
-
-const input = ref('')
+const router = useRouter();
+const input = ref('');
 
 onMounted(() => {
   booksStore.fetchBooks();
 });
+
+const goToBook = (book: any) => {
+  booksStore.setSelectedBook(book);
+  router.push({ name: 'book', params: { id: book.id } });
+};
+
 </script>
+
+<style scoped>
+.books-list {
+  display: flex;
+}
+</style>
