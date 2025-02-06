@@ -27,9 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import { useBooksStore } from '@/stores/books';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 
 const props = defineProps<{
   book: {
