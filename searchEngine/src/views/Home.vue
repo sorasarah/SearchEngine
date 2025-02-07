@@ -9,11 +9,11 @@
     <Input v-model:search="searchQuery" @updateResults="updateBooks" />
   </main>
 
-
   <!-- Display Matching Book Cards -->
   <div class="container mx-auto p-4">
     <div v-if="filteredBooks.length" class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <BookCard v-for="book in filteredBooks" :key="book.id" :book="book" />
+
     </div>
     <!-- <div class="" v-for="book in booksStore.books" :key="book.id">
       <BookCard :book=book  />

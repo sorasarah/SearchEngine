@@ -16,11 +16,11 @@
       </p>
     </div>
 
-    <!-- Button (Aligned to Bottom) -->
-    <div class="p-4 text-center">
-      <button class="bg-gray-500 text-white px-4 py-2 rounded-lg w-full" @click="goToBook(book)">Consulter</button>
+      <!-- Button (Aligned to Bottom) -->
+      <div class="p-4 text-center">
+        <button class="bg-gray-500 text-white px-4 py-2 rounded-lg w-full transition-transform duration-300 ease-in-out hover:bg-gray-700 hover:text-xl" @click="goToBook(book)">Consulter</button>
+      </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -52,3 +52,7 @@ const goToBook = (book: any) => {
 };
 
 </script>
+
+<style scoped>
+
+</style>

@@ -1,9 +1,5 @@
 <template>
   <div class="container mx-auto p-6">
-    <!-- Back Button -->
-    <button @click="goHome" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Retour</button>
-
-    <!-- Book Title -->
     <div class="text-center mt-4">
       <h1 class="text-3xl font-bold">{{ book?.titre || "Livre inconnu" }}</h1>
     </div>
