@@ -29,7 +29,7 @@ const input = ref('')
           @click="selectBook(book)"
           class="p-2 hover:bg-gray-100 cursor-pointer"
         >
-          {{ book.title }}
+          {{ book.titre }}
         </li>
       </ul>
     </div>
@@ -48,7 +48,7 @@ const emit = defineEmits(["update:search", "updateResults"]);
 const filteredBooks = computed(() => {
   if (!searchQuery.value) return [];
   return booksStore.books.filter(book =>
-    book.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+    book.titre.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
 
@@ -60,6 +60,6 @@ const updateResults = () => {
 // When a book title is clicked, emit the selected book
 const selectBook = (book: any) => {
   emit("updateResults", [book]); // Emit a list with the single selected book
-  searchQuery.value = book.title;
+  searchQuery.value = book.titre;
 };
 </script>

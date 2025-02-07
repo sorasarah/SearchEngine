@@ -7,14 +7,22 @@
       </button>
       <button @click="goHome" class="home-button">Accueil</button>
     </div>
-    <div class="book-reader">
-      <h1 class="book-title">{{ book?.title || 'Titre Inconnu' }}</h1>
+
+    <div v-if="book" class="book-reader">
+      <h1 class="book-title">{{ book?.titre || 'Titre Inconnu' }}</h1>
+
       <div class="book-content-container">
-        <div class="nav-button left" @click="previousPage">&#60;</div>
+        <div v-if="totalPages > 1" class="nav-button left" @click="previousPage">&#60;</div>
         <div class="book-content">{{ currentText }}</div>
-        <div class="nav-button right" @click="nextPage">&#62;</div>
+        <div v-if="totalPages > 1" class="nav-button right" @click="nextPage">&#62;</div>
       </div>
-      <p class="pagination">Page {{ currentPage }} / {{ totalPages }}</p>
+
+      <p v-if="totalPages > 1" class="pagination">Page {{ currentPage }} / {{ totalPages }}</p>
+    </div>
+
+    <div v-else class="book-not-found">
+      <p>Ce livre n'existe pas ou son contenu est indisponible.</p>
+      <button @click="goHome" class="back-home">Retour à l'accueil</button>
     </div>
   </div>
 </template>
@@ -28,41 +36,40 @@ import { Icon } from '@iconify/vue';
 const router = useRouter();
 const route = useRoute();
 const booksStore = useBooksStore();
+
+// Fetch the selected book or get from localStorage
 const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'));
 const content = ref('');
 const currentPage = ref(1);
-const charsPerPage = 500;
+const charsPerPage = 1500;
 const isDarkMode = ref(localStorage.getItem('darkMode') === 'true');
 
 onMounted(() => {
-  const bookId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
-  if (!book.value || book.value.id !== parseInt(bookId)) {
-    book.value = booksStore.books.find(b => b.id === parseInt(bookId));
-    booksStore.setSelectedBook(book.value);
-    localStorage.setItem('selectedBook', JSON.stringify(book.value));
+  if (!book.value) {
+    router.push({ name: 'home' }); // Redirect if no book found
+    return;
   }
-  if (book.value && book.value.formats['text/html']) {
-    content.value = book.value.formats['text/html'].replace(/<[^>]*>/g, '').trim();
-  }
+
+  content.value = book.value.content?.replace(/<[^>]*>/g, '').trim() || 'No content available';
 });
 
 const totalPages = computed(() => Math.ceil(content.value.length / charsPerPage));
 const currentText = computed(() => content.value.slice((currentPage.value - 1) * charsPerPage, currentPage.value * charsPerPage));
 
 function nextPage() {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
+  if (currentPage.value < totalPages.value) currentPage.value++;
 }
 
 function previousPage() {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
+  if (currentPage.value > 1) currentPage.value--;
 }
 
 function goBack() {
-  router.push({ name: 'book', params: { id: route.params.id } });
+  if (book.value?.id) {
+    router.push({ name: 'book', params: { id: book.value.id } });
+  } else {
+    router.push({ name: 'home' });
+  }
 }
 
 function goHome() {
@@ -177,5 +184,21 @@ body {
 
 .pagination {
   margin-top: 20px;
+}
+
+.book-not-found {
+  text-align: center;
+  font-size: 20px;
+  color: red;
+  margin-top: 50px;
+}
+
+.back-home {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: blue;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 </style>

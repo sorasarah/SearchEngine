@@ -27,20 +27,14 @@ import { Icon } from "@iconify/vue";
 import { ref, onMounted } from 'vue';
 import { useBooksStore } from '@/stores/books';
 import BookCard from '@/components/bookCard.vue';
-import { useRouter } from 'vue-router';
 
 const booksStore = useBooksStore();
-const router = useRouter();const searchQuery = ref("");
-const filteredBooks = ref([]); // Store list of matching books;
+const searchQuery = ref(''); // Define searchQuery
+const filteredBooks = ref<any[]>([]); // Store list of matching books;
 
 onMounted(() => {
   booksStore.fetchBooks();
 });
-
-const goToBook = (book: any) => {
-  booksStore.setSelectedBook(book);
-  router.push({ name: 'book', params: { id: book.id } });
-};
 
 
 // Update displayed books when the search results change
