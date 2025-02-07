@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-6">
+  <div class="container mx-auto p-6 mt-10">
     <div class="text-center mt-4">
       <h1 class="text-3xl font-bold">{{ book?.title }}</h1>
     </div>
@@ -17,7 +17,7 @@
       <p class="text-gray-700">{{ book?.summaries.join(', ') }}</p>
     </div>
     <div class="mt-6 text-center">
-      <button @click="goToReader" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Lire la suite</button>
+      <button @click="goToReader" class="bg-gray-500 text-white px-4 py-2 rounded-lg transition-transform duration-300 ease-in-out hover:bg-gray-700 hover:text-xl">Lire la suite</button>
     </div>
   </div>
 </template>

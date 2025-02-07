@@ -10,8 +10,8 @@
   </main>
 
   <!-- Display Matching Book Cards -->
-  <div class="container mx-auto p-4">
-    <div v-if="filteredBooks.length" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div v-if="filteredBooks.length" class="container mx-auto p-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <BookCard v-for="book in filteredBooks" :key="book.id" :book="book" />
 
     </div>
@@ -25,11 +25,11 @@
 import Input from '../components/input.vue';
 import { Icon } from "@iconify/vue";
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useBooksStore } from '@/stores/books';
 import BookCard from '@/components/bookCard.vue';
 
 const booksStore = useBooksStore();
-const searchQuery = ref('');
 const filteredBooks = ref<any[]>([]);
 const router = useRouter();const searchQuery = ref("");
 
@@ -42,9 +42,4 @@ const updateBooks = (books: any[]) => {
   filteredBooks.value = books;
 }
 
-
-// Update displayed books when the search results change
-const updateBooks = (books: any[]) => {
-  filteredBooks.value = books;
-};
 </script>

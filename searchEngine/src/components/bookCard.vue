@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-[450px]">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-[450px]" @click="goToBook(book)">
       <!-- Book Cover -->
       <img
         v-if="book.formats && book.formats['image/jpeg']"
@@ -36,6 +36,9 @@ const props = defineProps<{
     formats: { 'image/jpeg'?: string };
   };
 }>();
+
+import { useBooksStore } from '@/stores/books';
+import { useRouter } from 'vue-router';
 
 const booksStore = useBooksStore();
 const router = useRouter();

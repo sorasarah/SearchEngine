@@ -1,12 +1,18 @@
 <!-- filepath: /Users/sarahsarah/Desktop/CFA-INSTA/MoteurDeRecherche/M2R/searchEngine/src/views/BookReader.vue -->
 <template>
-  <div class="min-h-screen bg-gray-100 text-gray-900">
+  <div class="min-h-screen bg-gray-100 text-gray-900 mt-10">
     <div class="pt-20 book-reader">
       <h1 class="book-title text-3xl font-bold text-center my-6">{{ book?.title || 'Titre Inconnu' }}</h1>
       <div class="book-content-container relative flex items-center justify-center mx-auto p-4 border border-gray-300 bg-white shadow-lg rounded-lg">
-        <div class="nav-button left" @click="previousPage">&#60;</div>
+        <div class="hover-zone left" @mouseover="showLeftButton = true" @mouseleave="showLeftButton = false"></div>
+        <div class="hover-zone right" @mouseover="showRightButton = true" @mouseleave="showRightButton = false"></div>
+        <div class="nav-button left" v-if="showLeftButton" @click="previousPage">
+          <Icon icon="akar-icons:chevron-left" />
+        </div>
         <div class="book-content text-lg leading-relaxed">{{ currentText }}</div>
-        <div class="nav-button right" @click="nextPage">&#62;</div>
+        <div class="nav-button right" v-if="showRightButton" @click="nextPage">
+          <Icon icon="akar-icons:chevron-right" />
+        </div>
       </div>
       <p class="pagination text-center mt-4">Page {{ currentPage }} / {{ totalPages }}</p>
     </div>
@@ -17,6 +23,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBooksStore } from '@/stores/books';
+import { Icon } from '@iconify/vue';
 
 const route = useRoute();
 const booksStore = useBooksStore();
@@ -24,6 +31,8 @@ const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('sel
 const content = ref('');
 const currentPage = ref(1);
 const charsPerPage = 500;
+const showLeftButton = ref(false);
+const showRightButton = ref(false);
 
 onMounted(() => {
   const bookId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
@@ -57,11 +66,6 @@ function previousPage() {
 :root {
   --bg-color: white;
   --text-color: black;
-}
-
-.dark-mode {
-  --bg-color: #1e1e1e;
-  --text-color: white;
 }
 
 .book-reader {
@@ -102,8 +106,8 @@ function previousPage() {
 
 .nav-button {
   position: absolute;
-  width: 70px;
-  height: 70px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -116,6 +120,10 @@ function previousPage() {
   background-color: var(--bg-color);
   color: var(--text-color);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.book-content-container:hover .nav-button {
+  opacity: 0.5;
 }
 
 .nav-button:hover {
@@ -133,5 +141,20 @@ function previousPage() {
 
 .pagination {
   margin-top: 20px;
+}
+
+.hover-zone {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 15%;
+}
+
+.hover-zone.left {
+  left: 0;
+}
+
+.hover-zone.right {
+  right: 0;
 }
 </style>
