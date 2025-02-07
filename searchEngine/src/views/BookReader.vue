@@ -1,8 +1,9 @@
 <!-- filepath: /Users/sarahsarah/Desktop/CFA-INSTA/MoteurDeRecherche/M2R/searchEngine/src/views/BookReader.vue -->
 <template>
   <div class="min-h-screen bg-gray-100 text-gray-900 mt-10">
-    <div class="pt-20 book-reader">
+    <div v-if="book" class="pt-20 book-reader">
       <h1 class="book-title text-3xl font-bold text-center my-6">{{ book?.titre || 'Titre Inconnu' }}</h1>
+      
       <div class="book-content-container relative flex items-center justify-center mx-auto p-4 border border-gray-300 bg-white shadow-lg rounded-lg">
         <div class="hover-zone left" @mouseover="showLeftButton = true" @mouseleave="showLeftButton = false"></div>
         <div class="hover-zone right" @mouseover="showRightButton = true" @mouseleave="showRightButton = false"></div>
@@ -17,10 +18,8 @@
 
       <p v-if="totalPages > 1" class="pagination text-center mt-4">Page {{ currentPage }} / {{ totalPages }}</p>
     </div>
-
     <div v-else class="book-not-found">
       <p>Ce livre n'existe pas ou son contenu est indisponible.</p>
-      <button @click="goHome" class="back-home">Retour à l'accueil</button>
     </div>
   </div>
 </template>
