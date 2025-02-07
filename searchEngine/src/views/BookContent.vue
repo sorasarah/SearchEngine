@@ -83,3 +83,5 @@ const goToReader = () => {
   }
 };
 </script>
+<style scoped>
+</style>
