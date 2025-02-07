@@ -73,10 +73,9 @@ onMounted(() => {
   }
 });
 
-// Navigation methods
-const goHome = () => {
+function goHome() {
   router.push({ path: '/' });
-};
+}
 
 const goToReader = () => {
   if (book.value?.id) {
