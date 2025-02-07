@@ -2,7 +2,7 @@
 <template>
   <div class="min-h-screen bg-gray-100 text-gray-900 mt-10">
     <div class="pt-20 book-reader">
-      <h1 class="book-title text-3xl font-bold text-center my-6">{{ book?.title || 'Titre Inconnu' }}</h1>
+      <h1 class="book-title text-3xl font-bold text-center my-6">{{ book?.titre || 'Titre Inconnu' }}</h1>
       <div class="book-content-container relative flex items-center justify-center mx-auto p-4 border border-gray-300 bg-white shadow-lg rounded-lg">
         <div class="hover-zone left" @mouseover="showLeftButton = true" @mouseleave="showLeftButton = false"></div>
         <div class="hover-zone right" @mouseover="showRightButton = true" @mouseleave="showRightButton = false"></div>
@@ -14,7 +14,13 @@
           <Icon icon="akar-icons:chevron-right" />
         </div>
       </div>
-      <p class="pagination text-center mt-4">Page {{ currentPage }} / {{ totalPages }}</p>
+
+      <p v-if="totalPages > 1" class="pagination text-center mt-4">Page {{ currentPage }} / {{ totalPages }}</p>
+    </div>
+
+    <div v-else class="book-not-found">
+      <p>Ce livre n'existe pas ou son contenu est indisponible.</p>
+      <button @click="goHome" class="back-home">Retour à l'accueil</button>
     </div>
   </div>
 </template>
@@ -27,32 +33,29 @@ import { Icon } from '@iconify/vue';
 
 const route = useRoute();
 const booksStore = useBooksStore();
+
+// Fetch the selected book or get from localStorage
 const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'));
 const content = ref('');
 const currentPage = ref(1);
-const charsPerPage = 500;
+const charsPerPage = 1500;
 const showLeftButton = ref(false);
 const showRightButton = ref(false);
 
 onMounted(() => {
-  const bookId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
-  if (!book.value || book.value.id !== parseInt(bookId)) {
-    book.value = booksStore.books.find(b => b.id === parseInt(bookId));
-    booksStore.setSelectedBook(book.value);
-    localStorage.setItem('selectedBook', JSON.stringify(book.value));
+  if (!book.value) {
+    router.push({ name: 'home' }); // Redirect if no book found
+    return;
   }
-  if (book.value && book.value.formats['text/html']) {
-    content.value = book.value.formats['text/html'].replace(/<[^>]*>/g, '').trim();
-  }
+
+  content.value = book.value.content?.replace(/<[^>]*>/g, '').trim() || 'No content available';
 });
 
 const totalPages = computed(() => Math.ceil(content.value.length / charsPerPage));
 const currentText = computed(() => content.value.slice((currentPage.value - 1) * charsPerPage, currentPage.value * charsPerPage));
 
 function nextPage() {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
+  if (currentPage.value < totalPages.value) currentPage.value++;
 }
 
 function previousPage() {
@@ -60,6 +63,8 @@ function previousPage() {
     currentPage.value--;
   }
 }
+
+
 </script>
 
 <style scoped>
@@ -141,6 +146,12 @@ function previousPage() {
 
 .pagination {
   margin-top: 20px;
+}
+.book-not-found {
+  text-align: center;
+  font-size: 20px;
+  color: red;
+  margin-top: 50px;
 }
 
 .hover-zone {

@@ -30,8 +30,8 @@ import { useBooksStore } from '@/stores/books';
 import BookCard from '@/components/bookCard.vue';
 
 const booksStore = useBooksStore();
-const filteredBooks = ref<any[]>([]);
-const router = useRouter();const searchQuery = ref("");
+const searchQuery = ref(''); // Define searchQuery
+const filteredBooks = ref<any[]>([]); // Store list of matching books;
 
 
 onMounted(() => {

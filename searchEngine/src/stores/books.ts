@@ -7,9 +7,12 @@ export const useBooksStore = defineStore('books', () => {
   const selectedBook = ref<any | null>(null);
 
   function fetchBooks() {
-    axios.get('https://gutendex.com/books/')
+
+    axios.get(import.meta.env.VITE_API_URL + '/books/')
       .then((response) => {
-        books.value = response.data.results.filter((item: any) => item.languages.includes('en'));
+        books.value = response.data
+        console.log('Books fetched:', books.value);
+
       })
       .catch((error) => {
         console.error('Error fetching books:', error);
