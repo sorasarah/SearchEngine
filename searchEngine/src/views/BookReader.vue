@@ -1,33 +1,30 @@
 <template>
-  <div class="min-h-screen bg-gray-100 text-gray-900 mt-10">
-    <div v-if="book" class="pt-20 book-reader">
-      <h1 class="book-title text-3xl font-bold text-center my-6">{{ book?.titre || 'Titre Inconnu' }}</h1>
-      
-      <div 
-        class="book-content-container relative flex items-center justify-center mx-auto p-4 border border-gray-300 bg-white shadow-lg rounded-lg"
-        @mousemove="handleMouseMove"
-      >
-        <div class="hover-zone left" @mouseover="showLeftButton = true" @mouseleave="hideButtons"></div>
-        <div class="hover-zone right" @mouseover="showRightButton = true" @mouseleave="hideButtons"></div>
+  <div v-if="book" class="book-container min-h-screen bg-gray-100 text-gray-900 mt-5">
+    <h1 class="book-title">{{ book?.titre || 'Titre Inconnu' }}</h1>
 
-        <div class="nav-button left" v-if="showLeftButton" @click="previousPage">
-          <Icon icon="akar-icons:chevron-left" />
+    <div class="book">
+      <transition :name="swipeDirection" mode="out-in">
+        <div :key="currentPage" class="page">
+          <div class="page-content">
+            {{ currentText }}
+          </div>
         </div>
-
-        <div class="book-content text-lg leading-relaxed" :class="{ 'flip-left': flippingLeft, 'flip-right': flippingRight }">
-          {{ currentText }}
-        </div>
-
-        <div class="nav-button right" v-if="showRightButton" @click="nextPage">
-          <Icon icon="akar-icons:chevron-right" />
-        </div>
-      </div>
-
-      <p v-if="totalPages > 1" class="pagination text-center mt-4">Page {{ currentPage }} / {{ totalPages }}</p>
+      </transition>
     </div>
-    <div v-else class="book-not-found">
-      <p>Ce livre n'existe pas ou son contenu est indisponible.</p>
+
+    <div class="controls">
+      <button @click="previousPage" v-if="showLeftButton && currentPage > 1" class="nav-button left">
+        <Icon icon="akar-icons:chevron-left" />
+      </button>
+      <p class="pagination">Page {{ currentPage }} / {{ totalPages }}</p>
+      <button @click="nextPage" v-if="showRightButton && currentPage != totalPages" class="nav-button right">
+        <Icon icon="akar-icons:chevron-right" />
+      </button>
     </div>
+
+  </div>
+  <div v-else class="book-not-found">
+    <p>Ce livre n'existe pas ou son contenu est indisponible.</p>
   </div>
 </template>
 
@@ -44,20 +41,18 @@ const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('sel
 
 const content = ref('');
 const currentPage = ref(1);
-const charsPerPage = 1500;
-const showLeftButton = ref(false);
-const showRightButton = ref(false);
-const flippingLeft = ref(false);
-const flippingRight = ref(false);
+const charsPerPage = 1200; // Ajuste la longueur d'une page
+const swipeDirection = ref(''); // Gestion de la direction de l'animation
+const showLeftButton = ref(true);
+const showRightButton = ref(true);
 
-const pageTurnSound = new Audio('/sounds/page-flip.mp3');
+const pageTurnSound = new Audio('@/assets/sounds/page-flip.mp3');
 
 onMounted(() => {
   if (!book.value) {
-    router.push({ name: 'home' }); // Redirection si aucun livre trouvé
+    router.push({ name: 'home' });
     return;
   }
-
   content.value = book.value.content?.replace(/<[^>]*>/g, '').trim() || 'No content available';
 });
 
@@ -66,155 +61,123 @@ const totalPages = computed(() => Math.ceil(content.value.length / charsPerPage)
 const currentText = computed(() => {
   let start = (currentPage.value - 1) * charsPerPage;
   let end = start + charsPerPage;
-
-  // Éviter de couper un mot en plein milieu
-  while (end < content.value.length && content.value[end] !== ' ') {
-    end++;
-  }
-
   return content.value.slice(start, end);
 });
 
-function handleMouseMove() {
-  showLeftButton.value = true;
-  showRightButton.value = true;
-
-  setTimeout(() => {
-    showLeftButton.value = false;
-    showRightButton.value = false;
-  }, 2000);
-}
-
 function nextPage() {
   if (currentPage.value < totalPages.value) {
-    flippingRight.value = true;
+    swipeDirection.value = 'swipe-left'; // Ajout effet swipe gauche
     pageTurnSound.play();
-    setTimeout(() => {
-      flippingRight.value = false;
-      currentPage.value++;
-    }, 500);
+    currentPage.value++;
   }
 }
 
 function previousPage() {
   if (currentPage.value > 1) {
-    flippingLeft.value = true;
+    swipeDirection.value = 'swipe-right'; // Ajout effet swipe droite
     pageTurnSound.play();
-    setTimeout(() => {
-      flippingLeft.value = false;
-      currentPage.value--;
-    }, 500);
+    currentPage.value--;
   }
 }
 </script>
 
 <style scoped>
-.book-content-container {
-  position: relative;
-  width: 80%;
-  height: 80vh;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  background-color: white;
-  color: black;
+.book-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 90vh;
+  background-color: #f3f3f3;
 }
 
-.book-content {
-  font-size: 18px;
-  text-align: justify;
+.book-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.book {
+  position: relative;
+  width: 600px;
+  height: 400px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.page {
   width: 100%;
   height: 100%;
-  overflow-y: auto;
-  transition: transform 0.5s ease-in-out;
-}
-
-/* Animation de flip */
-.flip-left {
-  animation: flip-left 0.5s ease-in-out forwards;
-}
-
-.flip-right {
-  animation: flip-right 0.5s ease-in-out forwards;
-}
-
-@keyframes flip-left {
-  0% {
-    transform: rotateY(0deg);
-  }
-  50% {
-    transform: rotateY(-90deg);
-  }
-  100% {
-    transform: rotateY(0deg);
-  }
-}
-
-@keyframes flip-right {
-  0% {
-    transform: rotateY(0deg);
-  }
-  50% {
-    transform: rotateY(90deg);
-  }
-  100% {
-    transform: rotateY(0deg);
-  }
-}
-
-.nav-button {
-  position: absolute;
-  width: 50px;
-  height: 50px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.3s, transform 0.3s;
-  background-color: white;
-  color: black;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  position: absolute;
 }
 
-.nav-button:hover {
-  opacity: 1;
-  transform: scale(1.1);
+/* Effet SWIPE LEFT (Next Page) */
+.swipe-left-enter-active {
+  animation: swipeLeft 0.6s ease-in-out;
+}
+.swipe-left-leave-active {
+  animation: swipeLeftExit 0.6s ease-in-out;
 }
 
-.left {
-  left: 10px;
+/* Effet SWIPE RIGHT (Previous Page) */
+.swipe-right-enter-active {
+  animation: swipeRight 0.6s ease-in-out;
+}
+.swipe-right-leave-active {
+  animation: swipeRightExit 0.6s ease-in-out;
 }
 
-.right {
-  right: 10px;
+@keyframes swipeLeft {
+  0% { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
 }
 
-.pagination {
+@keyframes swipeLeftExit {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(-100%); opacity: 0; }
+}
+
+@keyframes swipeRight {
+  0% { transform: translateX(-100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes swipeRightExit {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
   margin-top: 20px;
 }
 
-.book-not-found {
-  text-align: center;
-  font-size: 20px;
-  color: red;
-  margin-top: 50px;
+.nav-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin: 0 15px;
 }
 
-.hover-zone {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 15%;
-}
-
-.hover-zone.left {
-  left: 0;
-}
-
-.hover-zone.right {
-  right: 0;
+.pagination {
+  font-size: 16px;
+  font-weight: bold;
 }
 </style>
