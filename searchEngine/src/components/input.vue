@@ -69,7 +69,7 @@ const selectBook = (book: any) => {
 // Apply search and hide dropdown
 const applySearch = () => {
   emit("update:search", books.value);
-  books.value.splice(0, books.value.length);
+  books.value = [];
 
   console.log("Search Applied", "je vide le dropdown", books.value);
 };
