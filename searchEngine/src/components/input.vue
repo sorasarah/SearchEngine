@@ -1,12 +1,20 @@
 <template>
   <div class="relative w-full max-w-md">
     <!-- Search Input -->
-    <input
-      type="text"
-      v-model="search"
-      class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-      placeholder="Search books..."
-    >
+    <div>
+      <input
+        type="text"
+        v-model="search"
+        @keyup.enter="applySearch"
+        class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Search books..."
+      >
+      <Icon
+        icon="akar-icons:search"
+        class="absolute right-2 top-3 text-gray-500 cursor-pointer"
+        @click="applySearch"
+      />
+    </div>
 
     <!-- Dropdown with Book Titles -->
     <div
@@ -28,8 +36,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps, defineEmits, watch } from 'vue';
+import { ref, computed, defineEmits, watch } from 'vue';
 import { useBooksStore } from '@/stores/books';
+import { Icon } from '@iconify/vue';
 
 const booksStore = useBooksStore();
 const search = ref("");
@@ -51,9 +60,17 @@ const updateResults = async () => {
   emit("update:search", books.value);
 };
 
-// When a book title is clicked, emit the selected book
+// When a book title is clicked, emit the selected book and hide dropdown
 const selectBook = (book: any) => {
-  emit("update:search", [book]); // Emit a list with the single selected book
-  search.value = book.titre;
+  emit("update:search", [book]); 
+  search.value = book.titre; 
+};
+
+// Apply search and hide dropdown
+const applySearch = () => {
+  emit("update:search", books.value);
+  books.value.splice(0, books.value.length);
+
+  console.log("Search Applied", "je vide le dropdown", books.value);
 };
 </script>
