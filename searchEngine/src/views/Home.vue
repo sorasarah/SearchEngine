@@ -6,7 +6,7 @@
     </div>
 
     <!-- Search Component (Dropdown with Titles) -->
-    <Input v-model:search="searchQuery" @updateResults="updateBooks" />
+    <Input v-model:search="searchQuery" @update:search="updateBooks" />
   </main>
 
   <!-- Display Matching Book Cards -->

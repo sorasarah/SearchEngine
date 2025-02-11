@@ -3,20 +3,19 @@
     <!-- Search Input -->
     <input
       type="text"
-      v-model="searchQuery"
-      @input="updateResults"
+      v-model="search"
       class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
       placeholder="Search books..."
     >
 
     <!-- Dropdown with Book Titles -->
     <div
-      v-if="searchQuery && filteredBooks.length"
+      v-if="search && books.length"
       class="absolute w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto"
     >
       <ul>
         <li
-          v-for="book in filteredBooks"
+          v-for="book in books"
           :key="book.id"
           @click="selectBook(book)"
           class="p-2 hover:bg-gray-100 cursor-pointer"
@@ -29,29 +28,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps, defineEmits } from 'vue';
+import { ref, computed, defineProps, defineEmits, watch } from 'vue';
 import { useBooksStore } from '@/stores/books';
 
 const booksStore = useBooksStore();
-const searchQuery = ref("");
-const emit = defineEmits(["update:search", "updateResults"]);
+const search = ref("");
+let timeout: number = 0;
+const books = ref<any[]>([]);
+const emit = defineEmits(["update:search"]);
 
-// Computed list of books that match the search
-const filteredBooks = computed(() => {
-  if (!searchQuery.value) return [];
-  return booksStore.books.filter(book =>
-    book.titre.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+watch(search, () => {
+  console.log("Search: ", search.value);
+  
+  clearTimeout(timeout);
+  timeout = setTimeout(updateResults, 500);
 });
 
 // Emit filtered books list
-const updateResults = () => {
-  emit("updateResults", filteredBooks.value);
+const updateResults = async () => {
+  await booksStore.search(search.value);
+  books.value = booksStore.books;
+  emit("update:search", books.value);
 };
 
 // When a book title is clicked, emit the selected book
 const selectBook = (book: any) => {
-  emit("updateResults", [book]); // Emit a list with the single selected book
-  searchQuery.value = book.titre;
+  emit("update:search", [book]); // Emit a list with the single selected book
+  search.value = book.titre;
 };
 </script>
