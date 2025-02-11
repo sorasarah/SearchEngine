@@ -4,10 +4,11 @@
     <div>
       <input
         type="text"
-        v-model="search"
-        @keyup.enter="applySearch"
         class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         placeholder="Search books..."
+        v-model="search"
+        @keyup.enter="applySearch"
+        @focus="searching = true"
       >
       <Icon
         icon="akar-icons:search"
@@ -18,7 +19,7 @@
 
     <!-- Dropdown with Book Titles -->
     <div
-      v-if="search && books.length"
+      v-if="searching && books.length"
       class="absolute w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto"
     >
       <ul>
@@ -42,13 +43,12 @@ import { Icon } from '@iconify/vue';
 
 const booksStore = useBooksStore();
 const search = ref("");
+const searching = ref(false);
 let timeout: number = 0;
 const books = ref<any[]>([]);
 const emit = defineEmits(["update:search"]);
 
 watch(search, () => {
-  console.log("Search: ", search.value);
-  
   clearTimeout(timeout);
   timeout = setTimeout(updateResults, 500);
 });
@@ -58,20 +58,19 @@ const updateResults = async () => {
   await booksStore.search(search.value);
   books.value = booksStore.books;
   emit("update:search", books.value);
+  searching.value = true;
 };
 
 // When a book title is clicked, emit the selected book and hide dropdown
 const selectBook = (book: any) => {
   emit("update:search", [book]); 
   search.value = book.titre; 
-  books.value = [];
+  searching.value = false;
 };
 
 // Apply search and hide dropdown
 const applySearch = () => {
   emit("update:search", books.value);
-  books.value = [];
-
-  console.log("Search Applied", "je vide le dropdown", books.value);
+  searching.value = false;
 };
 </script>
