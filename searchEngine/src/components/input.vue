@@ -64,6 +64,7 @@ const updateResults = async () => {
 const selectBook = (book: any) => {
   emit("update:search", [book]); 
   search.value = book.titre; 
+  books.value = [];
 };
 
 // Apply search and hide dropdown
