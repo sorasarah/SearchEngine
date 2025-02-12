@@ -2,7 +2,7 @@
   <div class="book-container mt-15">
     <h1 class="book-title">{{ book?.titre || 'Titre Inconnu' }}</h1>
 
-    <div> 
+    <div>
       <button @click="toggleSpeech" class="btn btn-primary">
         <Icon :icon="isSpeaking ? 'akar-icons:pause' : 'akar-icons:play'" />
       </button>
@@ -55,6 +55,7 @@
         </button>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -62,7 +63,8 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useBooksStore } from '@/stores/books'
 import { Icon } from '@iconify/vue'
-import pageFlipSound from '@/assets/sounds/turnpage.mp3'
+import pageFlipSound from '@/assets/sounds/page-flip.mp3'
+// import pageFlipSound from '@/assets/sounds/turnpage.mp3'
 
 const booksStore = useBooksStore()
 const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'))
@@ -98,7 +100,8 @@ const toggleSpeech = () => {
     window.speechSynthesis.cancel();
     isSpeaking.value = false;
   } else {
-    speak(currentText.value);
+    const textToRead = isMobile.value ? currentText.value : `${leftPageText.value} ${rightPageText.value}`;
+    speak(textToRead);
     isSpeaking.value = true;
   }
 }
@@ -209,6 +212,7 @@ function flipNextPage() {
   if (isMobile.value) {
     if (currentPage.value < totalPages.value && !isFlipping.value) {
       isFlipping.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value++
         isFlipping.value = false
@@ -220,6 +224,7 @@ function flipNextPage() {
   } else {
     if ((currentPage.value - 1) * 2 + 2 < pages.value.length && !isFlippingRight.value) {
       isFlippingRight.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value++
         isFlippingRight.value = false
@@ -235,6 +240,7 @@ function flipPrevPage() {
   if (isMobile.value) {
     if (currentPage.value > 1 && !isFlipping.value) {
       isFlipping.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value--
         isFlipping.value = false
@@ -246,6 +252,7 @@ function flipPrevPage() {
   } else {
     if (currentPage.value > 1 && !isFlippingLeft.value) {
       isFlippingLeft.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value--
         isFlippingLeft.value = false
@@ -256,6 +263,12 @@ function flipPrevPage() {
     }
   }
 }
+// **Audio Narration**
+// function startAudioNarration() {
+//   const utterance = new SpeechSynthesisUtterance(currentText.value)
+//   utterance.lang = 'fr-FR' // Set the language to French
+//   speechSynthesis.speak(utterance)
+// }
 </script>
 <style scoped>
 .book-container {
