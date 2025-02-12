@@ -1,5 +1,5 @@
 <template>
-  <div class="book-container mt-5">
+  <div class="book-container mt-15">
     <h1 class="book-title">{{ book?.titre || 'Titre Inconnu' }}</h1>
 
     <div class="book" @click="handlePageClick">
@@ -33,14 +33,14 @@
           <Icon icon="akar-icons:chevron-left" />
         </button>
         <p class="pagination"> {{ currentPage }} sur {{ totalPages }} </p>
-        <button @click="flipNextPage" v-if="currentPage < totalPages" class="nav-button right">
+        <button @click="flipNextPage" v-if="currentPage < totalPages" class="nav-button right ml-5">
           <Icon icon="akar-icons:chevron-right" />
         </button>
       </div>
     </div>
     <div v-else>
       <div class="controls mt-5">
-        <button @click="flipPrevPage" v-if="currentPage > 1" class="nav-button left">
+        <button @click="flipPrevPage" v-if="currentPage > 1" class="nav-button left mr-5">
           <Icon icon="akar-icons:chevron-left" />
         </button>
         <p class="pagination"> {{ currentPage }}-{{ currentPage + 1 }} sur {{ totalPages }} </p>
@@ -254,17 +254,9 @@ function flipPrevPage() {
 .controls {
   display: flex;
   align-items: center;
-  /* justify-content: center; */
 
 }
 
-/* .nav-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 24px;
-  margin: 0 10px;
-} */
 .nav-button {
   width: 40px;
   height: 40px;
@@ -281,11 +273,11 @@ function flipPrevPage() {
 }
 
 .nav-button.left {
-  margin-right: auto;
+  margin-right: auto 15px auto 0;
 }
 
 .nav-button.right {
-  margin-left: auto;
+  margin-left: auto 0 auto 15px;
 }
 
 /* **Responsive Styles** */
