@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineEmits, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useBooksStore } from '@/stores/books';
 import { Icon } from '@iconify/vue';
 
@@ -63,8 +63,8 @@ const updateResults = async () => {
 
 // When a book title is clicked, emit the selected book and hide dropdown
 const selectBook = (book: any) => {
-  emit("update:search", [book]); 
-  search.value = book.titre; 
+  emit("update:search", [book]);
+  search.value = book.titre;
   searching.value = false;
 };
 
