@@ -7,8 +7,10 @@
         class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         placeholder="Search books..."
         v-model="search"
+        @input="searching = true"
         @keyup.enter="applySearch"
         @focus="searching = true"
+        @blur="stop_search"
       >
       <Icon
         icon="akar-icons:search"
@@ -19,7 +21,7 @@
 
     <!-- Dropdown with Book Titles -->
     <div
-      v-if="searching && search"
+      v-if="searching && books.length"
       class="absolute w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto"
     >
       <ul v-if="books.length">
@@ -35,12 +37,12 @@
     </div>
     <div v-if="searchTriggered && !books.length && search" class="p-2 text-gray-500">
         Book not found
-      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useBooksStore } from '@/stores/books';
 import { Icon } from '@iconify/vue';
 
@@ -69,14 +71,16 @@ const updateResults = async () => {
   await booksStore.search(search.value);
   books.value = booksStore.books;
   emit("update:search", books.value);
-  searching.value = true;
 };
 
 // When a book title is clicked, emit the selected book and hide dropdown
 const selectBook = (book: any) => {
   emit("update:search", [book]);
   search.value = book.titre;
-  searching.value = false;
+  
+  setTimeout(() => {
+    searching.value = false;
+  }, 1000);
   searchTriggered.value = false;
 };
 
@@ -86,4 +90,10 @@ const applySearch = () => {
   emit("update:search", books.value);
   searching.value = false;
 };
+
+const stop_search = () => {
+  setTimeout(() => {
+    searching.value = false;
+  }, 200);
+}
 </script>
