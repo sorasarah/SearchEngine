@@ -1,61 +1,56 @@
 <template>
-  <div class="book-container mt-15">
-    <h1 class="book-title">{{ book?.titre || 'Titre Inconnu' }}</h1>
-
-    <div>
-      <button @click="toggleSpeech" class="btn btn-primary">
+  <div class="flex flex-col items-center justify-center h-screen space-y-4">
+    <div class="flex items-center space-x-2">
+      <h1 class="text-3xl font-bold font-k2d">{{ book?.titre || 'Titre Inconnu' }}</h1>
+      <div @click="toggleSpeech" class="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-full cursor-pointer">
         <Icon :icon="isSpeaking ? 'akar-icons:pause' : 'akar-icons:play'" />
-      </button>
+      </div>
     </div>
 
     <div class="book" @click="handlePageClick" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
       <!-- Responsive Page Display -->
-      <div v-if="isMobile" class="page single" :class="{ flipping: isFlipping, 'swiping-left': isSwipingLeft, 'swiping-right': isSwipingRight }">
-        <div class="page-content">
-          <p>{{ currentText }}</p>
-        </div>
+      <div v-if="isMobile" class="page single rounded-md p-4" :class="{ flipping: isFlipping, 'swiping-left': isSwipingLeft, 'swiping-right': isSwipingRight }">
+        <p>{{ currentText }}</p>
       </div>
 
-      <template v-else>
+      <div v-else class="h-140 flex border border-neutral-300 rounded-md shadow-xl">
         <!-- Desktop: Left Page (Only Display if Not First Page) -->
-        <div v-if="leftPageText" class="page left" :class="{ flipping: isFlippingLeft }">
-          <div class="page-content">
-            <p>{{ leftPageText }}</p>
-          </div>
+        <div v-if="leftPageText" class="page left rounded-l-md p-4" :class="{ flipping: isFlippingLeft }">
+          <p>{{ leftPageText }}</p>
         </div>
+        <div class="flex-1 w-10 bg-linear-to-r from-neutral-100/20 via-neutral-300 to-neutral-100/20"></div>
 
         <!-- Desktop: Right Page -->
-        <div v-if="rightPageText" class="page right" :class="{ flipping: isFlippingRight }">
-          <div class="page-content">
-            <p>{{ rightPageText }}</p>
-          </div>
+        <div v-if="rightPageText" class="page right rounded-r-md p-4" :class="{ flipping: isFlippingRight }">
+          <p>{{ rightPageText }}</p>
         </div>
-      </template>
+      </div>
     </div>
 
-    <div v-if="isMobile">
-      <div class="controls mt-5">
-        <button @click="flipPrevPage" v-if="currentPage > 1" class="nav-button left">
+    <div class="flex flex-col items-center justify-center">
+      <div v-if="isMobile" class="grid grid-cols-3 items-center">
+        <button @click="flipPrevPage" class="nav-button left" :class="{ 'opacity-0': currentPage > 1 }">
           <Icon icon="akar-icons:chevron-left" />
         </button>
-        <p class="pagination"> {{ currentPage }} sur {{ totalPages }} </p>
+        <p class="text-lg"><span class="font-bold">{{ currentPage }}</span> sur {{ totalPages }} </p>
         <button @click="flipNextPage" v-if="currentPage < totalPages" class="nav-button right ml-5">
           <Icon icon="akar-icons:chevron-right" />
         </button>
       </div>
-    </div>
-    <div v-else>
-      <div class="controls mt-5">
-        <button @click="flipPrevPage" v-if="currentPage > 1" class="nav-button left mr-5">
-          <Icon icon="akar-icons:chevron-left" />
-        </button>
-        <p class="pagination"> {{ currentPage }}-{{ currentPage + 1 }} sur {{ totalPages }} </p>
-        <button @click="flipNextPage" v-if="currentPage < totalPages" class="nav-button right">
-          <Icon icon="akar-icons:chevron-right" />
-        </button>
+      <div v-else class="grid grid-cols-3 items-center space-x-4">
+        <div class="justify-self-end flex items-center space-x-4">
+          <button @click="flipPrevPage" v-if="currentPage > 1" class="text-xl rounded-full shadow-md p-2">
+            <Icon icon="akar-icons:chevron-left" />
+          </button>
+        </div>
+        <p class="text-lg"><span class="font-bold">{{ currentPage }} - {{ currentPage + 1 }}</span> sur {{ totalPages }} </p>
+        <div class="justify-self-start flex items-center space-x-4">
+          <button @click="flipNextPage" v-if="currentPage < totalPages" class="text-xl rounded-full shadow-md p-2">
+            <Icon icon="akar-icons:chevron-right" />
+          </button>
+        </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -88,7 +83,7 @@ const speak = (text) => {
   speech.voice = voices[2];
   speech.volume = 1;
   speech.rate = .5;
-  speech.pitch = 1;
+  speech.pitch = 2;
   speech.text = text;
   speech.lang = 'en-US';
   window.speechSynthesis.speak(speech);
@@ -114,7 +109,7 @@ speech.onend = () => {
 const updateLayout = () => {
   const previousPage = currentPage.value // Store the current page
   isMobile.value = window.innerWidth <= 768
-  charsPerPage.value = isMobile.value ? 500 : 700 // Adjust character limit dynamically
+  charsPerPage.value = isMobile.value ? 800 : 1200 // Adjust character limit dynamically
   splitContentIntoPages() // Recalculate pages
   currentPage.value = previousPage // Restore the current page
 }
@@ -303,8 +298,6 @@ function flipPrevPage() {
   width: 440px;
   height: 100%;
   background: #fff;
-  border: 2px solid #ddd;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   display: flex;
   justify-content: center;
   transition: transform 0.6s ease-in-out;
@@ -338,16 +331,6 @@ function flipPrevPage() {
   text-align: justify;
   width: 100%;
   height: 100%;
-}
-
-.pagination {
-  font-size: 20px;
-}
-
-.controls {
-  display: flex;
-  align-items: center;
-
 }
 
 .nav-button {

@@ -1,7 +1,7 @@
 <template>
   <div>
-      <header class="fixed top-0 left-0 right-0 bg-gray-200 shadow-md flex justify-between items-center p-4 z-10 opacity-80">
-          <div v-if="!isHomePage" class="flex items-center space-x-2 cursor-pointer" @click="goBack">
+      <header v-if="!isHomePage" class="fixed top-0 left-0 right-0 flex justify-between items-center p-4 z-10 opacity-80">
+          <div class="flex items-center space-x-2 cursor-pointer" @click="goBack">
               <Icon icon="mdi:arrow-left" class="text-2xl text-black hover:text-gray-900" />
           </div>
           <div class="flex items-center space-x-2 cursor-pointer" @click="goHome">
