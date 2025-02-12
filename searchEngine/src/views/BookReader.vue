@@ -55,13 +55,7 @@
         </button>
       </div>
     </div>
-     <!-- Audio Narration Button -->
-     <div class="audio-controls mt-5">
-      <button @click="startAudioNarration" class="nav-button audio">
-        <Icon icon="akar-icons:play" />
-        Lecture Audio
-      </button>
-    </div>
+
   </div>
 </template>
 
@@ -106,7 +100,8 @@ const toggleSpeech = () => {
     window.speechSynthesis.cancel();
     isSpeaking.value = false;
   } else {
-    speak(currentText.value);
+    const textToRead = isMobile.value ? currentText.value : `${leftPageText.value} ${rightPageText.value}`;
+    speak(textToRead);
     isSpeaking.value = true;
   }
 }
@@ -217,6 +212,7 @@ function flipNextPage() {
   if (isMobile.value) {
     if (currentPage.value < totalPages.value && !isFlipping.value) {
       isFlipping.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value++
         isFlipping.value = false
@@ -228,6 +224,7 @@ function flipNextPage() {
   } else {
     if ((currentPage.value - 1) * 2 + 2 < pages.value.length && !isFlippingRight.value) {
       isFlippingRight.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value++
         isFlippingRight.value = false
@@ -243,6 +240,7 @@ function flipPrevPage() {
   if (isMobile.value) {
     if (currentPage.value > 1 && !isFlipping.value) {
       isFlipping.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value--
         isFlipping.value = false
@@ -254,6 +252,7 @@ function flipPrevPage() {
   } else {
     if (currentPage.value > 1 && !isFlippingLeft.value) {
       isFlippingLeft.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value--
         isFlippingLeft.value = false
@@ -265,11 +264,11 @@ function flipPrevPage() {
   }
 }
 // **Audio Narration**
-function startAudioNarration() {
-  const utterance = new SpeechSynthesisUtterance(currentText.value)
-  utterance.lang = 'fr-FR' // Set the language to French
-  speechSynthesis.speak(utterance)
-}
+// function startAudioNarration() {
+//   const utterance = new SpeechSynthesisUtterance(currentText.value)
+//   utterance.lang = 'fr-FR' // Set the language to French
+//   speechSynthesis.speak(utterance)
+// }
 </script>
 <style scoped>
 .book-container {
