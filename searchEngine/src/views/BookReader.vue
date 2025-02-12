@@ -2,9 +2,9 @@
   <div class="book-container mt-15">
     <h1 class="book-title">{{ book?.titre || 'Titre Inconnu' }}</h1>
 
-    <div class="book" @click="handlePageClick">
+    <div class="book" @click="handlePageClick" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
       <!-- Responsive Page Display -->
-      <div v-if="isMobile" class="page single" :class="{ flipping: isFlipping }">
+      <div v-if="isMobile" class="page single" :class="{ flipping: isFlipping, 'swiping-left': isSwipingLeft, 'swiping-right': isSwipingRight }">
         <div class="page-content">
           <p>{{ currentText }}</p>
         </div>
@@ -65,6 +65,8 @@ const currentPage = ref(1)
 const isFlippingLeft = ref(false)
 const isFlippingRight = ref(false)
 const isFlipping = ref(false)
+const isSwipingLeft = ref(false)
+const isSwipingRight = ref(false)
 const isMobile = ref(window.innerWidth <= 768)
 const pages = ref([])
 let charsPerPage = ref(isMobile.value ? 500 : 600) // Make it reactive
@@ -138,12 +140,41 @@ function handlePageClick(event) {
   }
 }
 
+// **Touch Event Handlers for Swipe Gesture**
+let touchStartX = 0
+
+function handleTouchStart(event) {
+  touchStartX = event.touches[0].clientX
+}
+
+function handleTouchEnd(event) {
+  const touchEndX = event.changedTouches[0].clientX
+  const touchDiff = touchStartX - touchEndX
+
+  if (touchDiff > 50) {
+    // Swipe left to go to the next page
+    isSwipingLeft.value = true
+    audio.play() // Play the sound
+    setTimeout(() => {
+      flipNextPage()
+      isSwipingLeft.value = false
+    }, 600)
+  } else if (touchDiff < -50) {
+    // Swipe right to go to the previous page
+    isSwipingRight.value = true
+    audio.play() // Play the sound
+    setTimeout(() => {
+      flipPrevPage()
+      isSwipingRight.value = false
+    }, 600)
+  }
+}
+
 // **Page Navigation**
 function flipNextPage() {
   if (isMobile.value) {
     if (currentPage.value < totalPages.value && !isFlipping.value) {
       isFlipping.value = true
-      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value++
         isFlipping.value = false
@@ -152,7 +183,6 @@ function flipNextPage() {
   } else {
     if ((currentPage.value - 1) * 2 + 2 < pages.value.length && !isFlippingRight.value) {
       isFlippingRight.value = true
-      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value++
         isFlippingRight.value = false
@@ -165,7 +195,6 @@ function flipPrevPage() {
   if (isMobile.value) {
     if (currentPage.value > 1 && !isFlipping.value) {
       isFlipping.value = true
-      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value--
         isFlipping.value = false
@@ -174,7 +203,6 @@ function flipPrevPage() {
   } else {
     if (currentPage.value > 1 && !isFlippingLeft.value) {
       isFlippingLeft.value = true
-      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value--
         isFlippingLeft.value = false
@@ -229,11 +257,13 @@ function flipPrevPage() {
 }
 
 .page.left.flipping {
-  transform-origin: left;
+  transform-origin: right center;
+  animation: flipLeft 0.6s forwards;
 }
 
 .page.right.flipping {
-  transform-origin: right;
+  transform-origin: left center;
+  animation: flipRight 0.6s forwards;
 }
 
 .page.single {
@@ -252,7 +282,6 @@ function flipPrevPage() {
 }
 
 .pagination {
-  /* margin-top: 20px; */
   font-size: 20px;
 }
 
@@ -296,5 +325,50 @@ function flipPrevPage() {
     width: 90%;
     max-width: 500px;
   }
+  /* Swipe Animations */
+@keyframes swipeLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
+
+@keyframes swipeRight {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+.page.swiping-left {
+  animation: swipeLeft 0.6s forwards;
+}
+
+.page.swiping-right {
+  animation: swipeRight 0.6s forwards;
+}
+
+}
+/* Page-Turning Animations */
+@keyframes flipLeft {
+  0% {
+    transform: rotateY(0);
+  }
+  100% {
+    transform: rotateY(180deg);
+  }
+}
+
+@keyframes flipRight {
+  0% {
+    transform: rotateY(0);
+  }
+  100% {
+    transform: rotateY(-180deg);
+  }
+}
+
 </style>
