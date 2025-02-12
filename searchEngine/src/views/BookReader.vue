@@ -52,135 +52,11 @@
   </div>
 </template>
 
-<!-- <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useBooksStore } from '@/stores/books'
-import { Icon } from '@iconify/vue'
-
-const booksStore = useBooksStore()
-const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'))
-const content = ref('')
-const currentPage = ref(1)
-const isFlippingLeft = ref(false)
-const isFlippingRight = ref(false)
-const isFlipping = ref(false)
-const isMobile = ref(window.innerWidth <= 768)
-const pages = ref([])
-let charsPerPage = ref(isMobile.value ? 500 : 600) // Make it reactive
-
-// Function to update layout when screen resizes
-const updateLayout = () => {
-  isMobile.value = window.innerWidth <= 768
-  charsPerPage.value = isMobile.value ? 500 : 700 // Adjust character limit dynamically
-  splitContentIntoPages() // Recalculate pages
-}
-
-// **Initialize Component**
-onMounted(() => {
-  if (!book.value) return
-  content.value = book.value.content?.replace(/<[^>]*>/g, '').trim() || 'No content available'
-
-  updateLayout()
-  window.addEventListener('resize', updateLayout)
-})
-
-// **Cleanup**
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateLayout)
-})
-
-// Watch content change & update pages dynamically
-watch([content, isMobile], () => splitContentIntoPages())
-
-// **Split Content Into Pages**
-function splitContentIntoPages() {
-  pages.value = []
-  let sentences = content.value.match(/[^.!?]+[.!?]+/g) || [content.value]
-  let pageContent = ''
-
-  for (let sentence of sentences) {
-    if ((pageContent + sentence).length > charsPerPage.value) {
-      pages.value.push(pageContent.trim())
-      pageContent = sentence
-    } else {
-      pageContent += ' ' + sentence
-    }
-  }
-
-  if (pageContent.trim()) pages.value.push(pageContent.trim()) // Push the last page
-
-  // Ensure even number of pages for desktop
-  if (!isMobile.value && pages.value.length % 2 !== 0) {
-    pages.value.push('')
-  }
-
-  // Reset to first page when content updates
-  currentPage.value = 1
-}
-
-// **Computed Properties**
-const totalPages = computed(() => isMobile.value ? pages.value.length : Math.ceil(pages.value.length / 2))
-const leftPageText = computed(() => !isMobile.value && ((currentPage.value - 1) * 2) < pages.value.length ? pages.value[(currentPage.value - 1) * 2] : '')
-const rightPageText = computed(() => !isMobile.value && ((currentPage.value - 1) * 2 + 1) < pages.value.length ? pages.value[(currentPage.value - 1) * 2 + 1] : '')
-const currentText = computed(() => pages.value[currentPage.value - 1] || '')
-
-// **Handle Page Click**
-function handlePageClick(event) {
-  const bookRect = event.currentTarget.getBoundingClientRect()
-  const clickX = event.clientX - bookRect.left
-
-  if (clickX > bookRect.width / 2) {
-    flipNextPage()
-  } else {
-    flipPrevPage()
-  }
-}
-
-// **Page Navigation**
-function flipNextPage() {
-  if (isMobile.value) {
-    if (currentPage.value < totalPages.value && !isFlipping.value) {
-      isFlipping.value = true
-      setTimeout(() => {
-        currentPage.value++
-        isFlipping.value = false
-      }, 600)
-    }
-  } else {
-    if ((currentPage.value - 1) * 2 + 2 < pages.value.length && !isFlippingRight.value) {
-      isFlippingRight.value = true
-      setTimeout(() => {
-        currentPage.value++
-        isFlippingRight.value = false
-      }, 600)
-    }
-  }
-}
-
-function flipPrevPage() {
-  if (isMobile.value) {
-    if (currentPage.value > 1 && !isFlipping.value) {
-      isFlipping.value = true
-      setTimeout(() => {
-        currentPage.value--
-        isFlipping.value = false
-      }, 600)
-    }
-  } else {
-    if (currentPage.value > 1 && !isFlippingLeft.value) {
-      isFlippingLeft.value = true
-      setTimeout(() => {
-        currentPage.value--
-        isFlippingLeft.value = false
-      }, 600)
-    }
-  }
-}
-</script> -->
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useBooksStore } from '@/stores/books'
 import { Icon } from '@iconify/vue'
+import pageFlipSound from '@/assets/sounds/page-flip.mp3'
 
 const booksStore = useBooksStore()
 const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'))
@@ -192,6 +68,8 @@ const isFlipping = ref(false)
 const isMobile = ref(window.innerWidth <= 768)
 const pages = ref([])
 let charsPerPage = ref(isMobile.value ? 500 : 600) // Make it reactive
+
+const audio = new Audio(pageFlipSound)
 
 // Function to update layout when screen resizes
 const updateLayout = () => {
@@ -265,6 +143,7 @@ function flipNextPage() {
   if (isMobile.value) {
     if (currentPage.value < totalPages.value && !isFlipping.value) {
       isFlipping.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value++
         isFlipping.value = false
@@ -273,6 +152,7 @@ function flipNextPage() {
   } else {
     if ((currentPage.value - 1) * 2 + 2 < pages.value.length && !isFlippingRight.value) {
       isFlippingRight.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value++
         isFlippingRight.value = false
@@ -285,6 +165,7 @@ function flipPrevPage() {
   if (isMobile.value) {
     if (currentPage.value > 1 && !isFlipping.value) {
       isFlipping.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value--
         isFlipping.value = false
@@ -293,6 +174,7 @@ function flipPrevPage() {
   } else {
     if (currentPage.value > 1 && !isFlippingLeft.value) {
       isFlippingLeft.value = true
+      audio.play() // Play the sound
       setTimeout(() => {
         currentPage.value--
         isFlippingLeft.value = false
