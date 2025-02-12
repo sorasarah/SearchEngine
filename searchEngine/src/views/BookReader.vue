@@ -1,118 +1,184 @@
 <template>
-  <div class="book-container">
+  <div class="book-container mt-5">
     <h1 class="book-title">{{ book?.titre || 'Titre Inconnu' }}</h1>
 
-    <div
-      class="book"
-      @mousedown="startDrag"
-      @mousemove="onDrag"
-      @mouseup="endDrag"
-      @touchstart="startDrag"
-      @touchmove="onDrag"
-      @touchend="endDrag"
-    >
-      <!-- Left Page -->
-      <div class="page left" :class="{ flipping: isFlippingLeft }">
+    <div class="book" @click="handlePageClick">
+      <!-- Responsive Page Display -->
+      <div v-if="isMobile" class="page single" :class="{ flipping: isFlipping }">
         <div class="page-content">
-          <p>{{ leftPageText }}</p>
+          <p>{{ currentText }}</p>
         </div>
       </div>
 
-      <!-- Right Page -->
-      <div class="page right" :class="{ flipping: isFlippingRight }">
-        <div class="page-content">
-          <p>{{ rightPageText }}</p>
+      <template v-else>
+        <!-- Desktop: Left Page (Only Display if Not First Page) -->
+        <div v-if="leftPageText" class="page left" :class="{ flipping: isFlippingLeft }">
+          <div class="page-content">
+            <p>{{ leftPageText }}</p>
+          </div>
         </div>
-      </div>
+
+        <!-- Desktop: Right Page -->
+        <div v-if="rightPageText" class="page right" :class="{ flipping: isFlippingRight }">
+          <div class="page-content">
+            <p>{{ rightPageText }}</p>
+          </div>
+        </div>
+      </template>
     </div>
 
-    <p class="pagination">Page {{ currentPage }} - {{ currentPage + 1 }} / {{ totalPages }}</p>
+    <div v-if="isMobile">
+      <div class="controls mt-5">
+        <button @click="flipPrevPage" v-if="currentPage > 1" class="nav-button left">
+          <Icon icon="akar-icons:chevron-left" />
+        </button>
+        <p class="pagination"> {{ currentPage }} sur {{ totalPages }} </p>
+        <button @click="flipNextPage" v-if="currentPage < totalPages" class="nav-button right">
+          <Icon icon="akar-icons:chevron-right" />
+        </button>
+      </div>
+    </div>
+    <div v-else>
+      <div class="controls mt-5">
+        <button @click="flipPrevPage" v-if="currentPage > 1" class="nav-button left">
+          <Icon icon="akar-icons:chevron-left" />
+        </button>
+        <p class="pagination"> {{ currentPage }}-{{ currentPage + 1 }} sur {{ totalPages }} </p>
+        <button @click="flipNextPage" v-if="currentPage < totalPages" class="nav-button right">
+          <Icon icon="akar-icons:chevron-right" />
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useBooksStore } from '@/stores/books';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useBooksStore } from '@/stores/books'
+import { Icon } from '@iconify/vue'
 
-const booksStore = useBooksStore();
-const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'));
-const content = ref('');
-const currentPage = ref(1);
-const charsPerPage = 700;
-const isFlippingLeft = ref(false);
-const isFlippingRight = ref(false);
-const startX = ref(0);
-const isDragging = ref(false);
+const booksStore = useBooksStore()
+const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'))
+const content = ref('')
+const currentPage = ref(1)
+const isFlippingLeft = ref(false)
+const isFlippingRight = ref(false)
+const isFlipping = ref(false)
+const isMobile = ref(window.innerWidth <= 768)
+const pages = ref([])
+let charsPerPage = ref(isMobile.value ? 500 : 600) // Make it reactive
 
+// Function to update layout when screen resizes
+const updateLayout = () => {
+  isMobile.value = window.innerWidth <= 768
+  charsPerPage.value = isMobile.value ? 500 : 700 // Adjust character limit dynamically
+  splitContentIntoPages() // Recalculate pages
+}
+
+// **Initialize Component**
 onMounted(() => {
-  if (!book.value) return;
-  content.value = book.value.content?.replace(/<[^>]*>/g, '').trim() || 'No content available';
-});
+  if (!book.value) return
+  content.value = book.value.content?.replace(/<[^>]*>/g, '').trim() || 'No content available'
 
-// Total number of two-page spreads
-const totalPages = computed(() => Math.ceil(content.value.length / (charsPerPage * 2)));
+  updateLayout()
+  window.addEventListener('resize', updateLayout)
+})
 
-// Left page text
-const leftPageText = computed(() =>
-  content.value.slice((currentPage.value - 1) * charsPerPage, currentPage.value * charsPerPage)
-);
+// **Cleanup**
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateLayout)
+})
 
-// Right page text
-const rightPageText = computed(() =>
-  content.value.slice(currentPage.value * charsPerPage, (currentPage.value + 1) * charsPerPage)
-);
+// Watch content change & update pages dynamically
+watch([content, isMobile], () => splitContentIntoPages())
 
-// Detect drag start
-function startDrag(event) {
-  isDragging.value = true;
-  startX.value = event.touches ? event.touches[0].clientX : event.clientX;
+// **Split Content Into Pages**
+function splitContentIntoPages() {
+  pages.value = []
+  let sentences = content.value.match(/[^.!?]+[.!?]+/g) || [content.value]
+  let pageContent = ''
+
+  for (let sentence of sentences) {
+    if ((pageContent + sentence).length > charsPerPage.value) {
+      pages.value.push(pageContent.trim())
+      pageContent = sentence
+    } else {
+      pageContent += ' ' + sentence
+    }
+  }
+
+  if (pageContent.trim()) pages.value.push(pageContent.trim()) // Push the last page
+
+  // Ensure even number of pages for desktop
+  if (!isMobile.value && pages.value.length % 2 !== 0) {
+    pages.value.push('')
+  }
+
+  // Reset to first page when content updates
+  currentPage.value = 1
 }
 
-// Detect drag move
-function onDrag(event) {
-  if (!isDragging.value) return;
-  const currentX = event.touches ? event.touches[0].clientX : event.clientX;
-  const deltaX = currentX - startX.value;
+// **Computed Properties**
+const totalPages = computed(() => isMobile.value ? pages.value.length : Math.ceil(pages.value.length / 2))
+const leftPageText = computed(() => !isMobile.value && ((currentPage.value - 1) * 2) < pages.value.length ? pages.value[(currentPage.value - 1) * 2] : '')
+const rightPageText = computed(() => !isMobile.value && ((currentPage.value - 1) * 2 + 1) < pages.value.length ? pages.value[(currentPage.value - 1) * 2 + 1] : '')
+const currentText = computed(() => pages.value[currentPage.value - 1] || '')
 
-  if (deltaX < -50) {
-    flipNextPage();
-    isDragging.value = false;
-  } else if (deltaX > 50) {
-    flipPrevPage();
-    isDragging.value = false;
+// **Handle Page Click**
+function handlePageClick(event) {
+  const bookRect = event.currentTarget.getBoundingClientRect()
+  const clickX = event.clientX - bookRect.left
+
+  if (clickX > bookRect.width / 2) {
+    flipNextPage()
+  } else {
+    flipPrevPage()
   }
 }
 
-// Detect drag end
-function endDrag() {
-  isDragging.value = false;
-}
-
-// Flip to next pages
+// **Page Navigation**
 function flipNextPage() {
-  if (currentPage.value < totalPages.value) {
-    isFlippingRight.value = true;
-    setTimeout(() => {
-      currentPage.value += 2;
-      isFlippingRight.value = false;
-    }, 600);
+  if (isMobile.value) {
+    if (currentPage.value < totalPages.value && !isFlipping.value) {
+      isFlipping.value = true
+      setTimeout(() => {
+        currentPage.value++
+        isFlipping.value = false
+      }, 600)
+    }
+  } else {
+    if ((currentPage.value - 1) * 2 + 2 < pages.value.length && !isFlippingRight.value) {
+      isFlippingRight.value = true
+      setTimeout(() => {
+        currentPage.value++
+        isFlippingRight.value = false
+      }, 600)
+    }
   }
 }
 
-// Flip to previous pages
 function flipPrevPage() {
-  if (currentPage.value > 1) {
-    isFlippingLeft.value = true;
-    setTimeout(() => {
-      currentPage.value -= 2;
-      isFlippingLeft.value = false;
-    }, 600);
+  if (isMobile.value) {
+    if (currentPage.value > 1 && !isFlipping.value) {
+      isFlipping.value = true
+      setTimeout(() => {
+        currentPage.value--
+        isFlipping.value = false
+      }, 600)
+    }
+  } else {
+    if (currentPage.value > 1 && !isFlippingLeft.value) {
+      isFlippingLeft.value = true
+      setTimeout(() => {
+        currentPage.value--
+        isFlippingLeft.value = false
+      }, 600)
+    }
   }
 }
 </script>
 
 <style scoped>
-/* Center book container */
 .book-container {
   text-align: center;
   display: flex;
@@ -125,14 +191,12 @@ function flipPrevPage() {
   padding: 20px;
 }
 
-/* Book Title */
 .book-title {
   margin-bottom: 20px;
   font-size: 32px;
   font-weight: bold;
 }
 
-/* Book Layout */
 .book {
   display: flex;
   justify-content: center;
@@ -143,7 +207,6 @@ function flipPrevPage() {
   perspective: 1500px;
 }
 
-/* Pages */
 .page {
   width: 440px;
   height: 100%;
@@ -154,19 +217,28 @@ function flipPrevPage() {
   align-items: center;
   justify-content: center;
   transition: transform 0.6s ease-in-out;
+  transform-style: preserve-3d;
 }
 
-/* Left Page */
-.page.left {
-  transform-origin: right;
+.page.flipping {
+  transition: transform 0.6s ease-in-out;
 }
 
-/* Right Page */
-.page.right {
+.page.left.flipping {
   transform-origin: left;
 }
 
-/* Page Content */
+.page.right.flipping {
+  transform-origin: right;
+}
+
+.page.single {
+  width: 90%;
+  max-width: 500px;
+  height: 100%;
+  border-radius: 8px;
+}
+
 .page-content {
   padding: 25px;
   font-size: 20px;
@@ -175,26 +247,58 @@ function flipPrevPage() {
   height: 100%;
 }
 
-/* Flipping Effect */
-.flipping {
-  animation: flipEffect 0.6s ease-in-out;
-}
-
-@keyframes flipEffect {
-  0% {
-    transform: rotateY(0deg);
-  }
-  50% {
-    transform: rotateY(-15deg);
-  }
-  100% {
-    transform: rotateY(0deg);
-  }
-}
-
-/* Pagination */
 .pagination {
-  margin-top: 20px;
+  /* margin-top: 20px; */
   font-size: 20px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
+
+}
+
+/* .nav-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  margin: 0 10px;
+} */
+.nav-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin: 0 15px;
+}
+
+.nav-button.left {
+  margin-right: auto;
+}
+
+.nav-button.right {
+  margin-left: auto;
+}
+
+/* **Responsive Styles** */
+@media screen and (max-width: 768px) {
+  .book {
+    width: 100%;
+    height: 80%;
+  }
+
+  .page {
+    width: 90%;
+    max-width: 500px;
+  }
 }
 </style>
