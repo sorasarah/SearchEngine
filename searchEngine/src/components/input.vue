@@ -19,10 +19,10 @@
 
     <!-- Dropdown with Book Titles -->
     <div
-      v-if="searching && books.length"
+      v-if="searching && search"
       class="absolute w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto"
     >
-      <ul>
+      <ul v-if="books.length">
         <li
           v-for="book in books"
           :key="book.id"
@@ -33,6 +33,9 @@
         </li>
       </ul>
     </div>
+    <div v-if="searchTriggered && !books.length && search" class="p-2 text-gray-500">
+        Book not found
+      </div>
   </div>
 </template>
 
@@ -47,10 +50,18 @@ const searching = ref(false);
 let timeout: number = 0;
 const books = ref<any[]>([]);
 const emit = defineEmits(["update:search"]);
+const searchTriggered = ref(false);
 
 watch(search, () => {
   clearTimeout(timeout);
-  timeout = setTimeout(updateResults, 500);
+  if (search.value) {
+    timeout = setTimeout(updateResults, 500);
+  } else {
+    books.value = [];
+    searching.value = false;
+    searchTriggered.value = false;
+    emit("update:search", books.value);
+  }
 });
 
 // Emit filtered books list
@@ -66,10 +77,12 @@ const selectBook = (book: any) => {
   emit("update:search", [book]);
   search.value = book.titre;
   searching.value = false;
+  searchTriggered.value = false;
 };
 
 // Apply search and hide dropdown
 const applySearch = () => {
+  searchTriggered.value = true;
   emit("update:search", books.value);
   searching.value = false;
 };
