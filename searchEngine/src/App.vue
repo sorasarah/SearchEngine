@@ -10,7 +10,7 @@
           </div>
       </header>
        
-      <div class="mt-50px">
+      <div>
           <RouterView />
       </div>
   </div>  
@@ -36,7 +36,5 @@ router.push({ name: 'home' });
 </script>
 
 <style>
-.mt-50px {
-margin-top: 50px;
-}
+
 </style>

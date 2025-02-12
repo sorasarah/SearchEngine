@@ -214,7 +214,6 @@ function flipPrevPage() {
   border: 2px solid #ddd;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   display: flex;
-  align-items: center;
   justify-content: center;
   transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;

@@ -1,17 +1,17 @@
 <template>
-  <main class="w-full h-screen flex flex-col justify-center items-center space-y-6">
+  <main :class="{'h-middle': filteredBooks.length, 'h-screen': !filteredBooks.length}" class="w-full flex flex-col justify-center items-center space-y-6">
     <div class="flex items-center space-x-2">
       <Icon icon="material-symbols-light:book-5" class="text-6xl text-primary-500" />
       <p class="text-6xl font-k2d">Bookseek</p>
     </div>
 
     <!-- Search Component (Dropdown with Titles) -->
-    <Input v-model:search="searchQuery" @updateResults="updateBooks" />
+    <Input v-model:search="searchQuery" @update:search="updateBooks" />
   </main>
 
   <!-- Display Matching Book Cards -->
-  <div class="container mx-auto p-4">
-    <div v-if="filteredBooks.length" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div v-if="filteredBooks.length" class="container mx-auto p-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <BookCard v-for="book in filteredBooks" :key="book.id" :book="book" />
 
     </div>
@@ -32,13 +32,19 @@ const booksStore = useBooksStore();
 const searchQuery = ref(''); // Define searchQuery
 const filteredBooks = ref<any[]>([]); // Store list of matching books;
 
+
 onMounted(() => {
   booksStore.fetchBooks();
 });
 
-
-// Update displayed books when the search results change
 const updateBooks = (books: any[]) => {
   filteredBooks.value = books;
-};
+}
+
 </script>
+
+<style scoped>
+.h-middle {
+  height: 70vh;
+}
+</style>

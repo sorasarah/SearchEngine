@@ -44,7 +44,7 @@ const props = defineProps<{
 
   };
 }>();
-// console.log(props.book.image);
+console.log(props.book.image);
 const goToBook = (book: any) => {
   booksStore.setSelectedBook(book);
   localStorage.setItem("selectedBook", JSON.stringify(book)); // Store in localStorage

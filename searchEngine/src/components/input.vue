@@ -1,30 +1,30 @@
-<!-- <template>
-    <input type="text" class="border border-gray-300 rounded-md" v-model="input">
-</template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-const input = ref('')
-</script> -->
 <template>
   <div class="relative w-full max-w-md">
     <!-- Search Input -->
-    <input
-      type="text"
-      v-model="searchQuery"
-      @input="updateResults"
-      class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-      placeholder="Search books..."
-    >
+    <div>
+      <input
+        type="text"
+        class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Search books..."
+        v-model="search"
+        @keyup.enter="applySearch"
+        @focus="searching = true"
+      >
+      <Icon
+        icon="akar-icons:search"
+        class="absolute right-2 top-3 text-gray-500 cursor-pointer"
+        @click="applySearch"
+      />
+    </div>
 
     <!-- Dropdown with Book Titles -->
     <div
-      v-if="searchQuery && filteredBooks.length"
+      v-if="searching && books.length"
       class="absolute w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto"
     >
       <ul>
         <li
-          v-for="book in filteredBooks"
+          v-for="book in books"
           :key="book.id"
           @click="selectBook(book)"
           class="p-2 hover:bg-gray-100 cursor-pointer"
@@ -37,29 +37,40 @@ const input = ref('')
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps, defineEmits } from 'vue';
+import { ref, computed, defineEmits, watch } from 'vue';
 import { useBooksStore } from '@/stores/books';
+import { Icon } from '@iconify/vue';
 
 const booksStore = useBooksStore();
-const searchQuery = ref("");
-const emit = defineEmits(["update:search", "updateResults"]);
+const search = ref("");
+const searching = ref(false);
+let timeout: number = 0;
+const books = ref<any[]>([]);
+const emit = defineEmits(["update:search"]);
 
-// Computed list of books that match the search
-const filteredBooks = computed(() => {
-  if (!searchQuery.value) return [];
-  return booksStore.books.filter(book =>
-    book.titre.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+watch(search, () => {
+  clearTimeout(timeout);
+  timeout = setTimeout(updateResults, 500);
 });
 
 // Emit filtered books list
-const updateResults = () => {
-  emit("updateResults", filteredBooks.value);
+const updateResults = async () => {
+  await booksStore.search(search.value);
+  books.value = booksStore.books;
+  emit("update:search", books.value);
+  searching.value = true;
 };
 
-// When a book title is clicked, emit the selected book
+// When a book title is clicked, emit the selected book and hide dropdown
 const selectBook = (book: any) => {
-  emit("updateResults", [book]); // Emit a list with the single selected book
-  searchQuery.value = book.titre;
+  emit("update:search", [book]); 
+  search.value = book.titre; 
+  searching.value = false;
+};
+
+// Apply search and hide dropdown
+const applySearch = () => {
+  emit("update:search", books.value);
+  searching.value = false;
 };
 </script>
