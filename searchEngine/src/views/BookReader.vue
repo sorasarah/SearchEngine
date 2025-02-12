@@ -49,6 +49,13 @@
         </button>
       </div>
     </div>
+     <!-- Audio Narration Button -->
+     <div class="audio-controls mt-5">
+      <button @click="startAudioNarration" class="nav-button audio">
+        <Icon icon="akar-icons:play" />
+        Lecture Audio
+      </button>
+    </div>
   </div>
 </template>
 
@@ -57,6 +64,7 @@ import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useBooksStore } from '@/stores/books'
 import { Icon } from '@iconify/vue'
 import pageFlipSound from '@/assets/sounds/page-flip.mp3'
+// import pageFlipSound from '@/assets/sounds/turnpage.mp3'
 
 const booksStore = useBooksStore()
 const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'))
@@ -209,6 +217,12 @@ function flipPrevPage() {
       }, 600)
     }
   }
+}
+// **Audio Narration**
+function startAudioNarration() {
+  const utterance = new SpeechSynthesisUtterance(currentText.value)
+  utterance.lang = 'fr-FR' // Set the language to French
+  speechSynthesis.speak(utterance)
 }
 </script>
 <style scoped>
