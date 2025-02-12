@@ -2,6 +2,12 @@
   <div class="book-container mt-15">
     <h1 class="book-title">{{ book?.titre || 'Titre Inconnu' }}</h1>
 
+    <div> 
+      <button @click="toggleSpeech" class="btn btn-primary">
+        <Icon :icon="isSpeaking ? 'akar-icons:pause' : 'akar-icons:play'" />
+      </button>
+    </div>
+
     <div class="book" @click="handlePageClick" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
       <!-- Responsive Page Display -->
       <div v-if="isMobile" class="page single" :class="{ flipping: isFlipping, 'swiping-left': isSwipingLeft, 'swiping-right': isSwipingRight }">
@@ -56,7 +62,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useBooksStore } from '@/stores/books'
 import { Icon } from '@iconify/vue'
-import pageFlipSound from '@/assets/sounds/page-flip.mp3'
+import pageFlipSound from '@/assets/sounds/turnpage.mp3'
 
 const booksStore = useBooksStore()
 const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'))
@@ -70,8 +76,36 @@ const isSwipingRight = ref(false)
 const isMobile = ref(window.innerWidth <= 768)
 const pages = ref([])
 let charsPerPage = ref(isMobile.value ? 500 : 600) // Make it reactive
+var speech = new SpeechSynthesisUtterance();
+var voices = window.speechSynthesis.getVoices();
+const isSpeaking = ref(false);
 
 const audio = new Audio(pageFlipSound)
+
+const speak = (text) => {
+  speech.voice = voices[2];
+  speech.volume = 1;
+  speech.rate = .5;
+  speech.pitch = 1;
+  speech.text = text;
+  speech.lang = 'en-US';
+  window.speechSynthesis.speak(speech);
+  console.log("je lis le texte", speech.text);
+}
+
+const toggleSpeech = () => {
+  if (isSpeaking.value) {
+    window.speechSynthesis.cancel();
+    isSpeaking.value = false;
+  } else {
+    speak(currentText.value);
+    isSpeaking.value = true;
+  }
+}
+
+speech.onend = () => {
+  isSpeaking.value = false;
+}
 
 // Function to update layout when screen resizes
 const updateLayout = () => {
@@ -178,6 +212,9 @@ function flipNextPage() {
       setTimeout(() => {
         currentPage.value++
         isFlipping.value = false
+        if (isSpeaking.value) {
+          speak(currentText.value);
+        }
       }, 600)
     }
   } else {
@@ -186,6 +223,9 @@ function flipNextPage() {
       setTimeout(() => {
         currentPage.value++
         isFlippingRight.value = false
+        if (isSpeaking.value) {
+          speak(currentText.value);
+        }
       }, 600)
     }
   }
@@ -198,6 +238,9 @@ function flipPrevPage() {
       setTimeout(() => {
         currentPage.value--
         isFlipping.value = false
+        if (isSpeaking.value) {
+          speak(currentText.value);
+        }
       }, 600)
     }
   } else {
@@ -206,6 +249,9 @@ function flipPrevPage() {
       setTimeout(() => {
         currentPage.value--
         isFlippingLeft.value = false
+        if (isSpeaking.value) {
+          speak(currentText.value);
+        }
       }, 600)
     }
   }
