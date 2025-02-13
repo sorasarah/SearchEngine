@@ -13,18 +13,31 @@
         <p>{{ currentText }}</p>
       </div>
 
-      <div v-else class="max-w-full w-full h-140 flex border border-neutral-300 rounded-md shadow-xl">
-        <!-- Desktop: Left Page (Only Display if Not First Page) -->
-        <div v-if="leftPageText" class="page left flex-1 rounded-l-md p-4" :class="{ flipping: isFlippingLeft }">
+      <div v-else class="max-w-full w-full h-140 flex justify-end border border-neutral-300 rounded-md shadow-xl">
+        <div v-for="(pair, index) in pairs" :key="index" :date-index="index" class="transform-3d absolute duration-1000 flex items-end origin-left w-1/2 transition h-full transform" @click="page_flip(index)" :class="{ 
+          '-rotate-y-180': pair.flipped, 
+          'rotate-y-0': !pair.flipped,
+          'z-10': idx === index
+          }"
+          >
+          <div class="absolute right-0 h-full bg-white p-4 backface-hidden ml-4">
+            <p>{{ pair.content[0] }}</p>
+          </div>
+          <div v-if="pair.content[1]" class="absolute h-full bg-white p-4 backface-hidden -rotate-y-180">
+            <p>{{ pair.content[1] }}</p>
+          </div>
+        </div>
+        <div class="absolute z-50 right-0 left-0 mx-auto w-10 h-full bg-linear-to-r from-neutral-100/20 via-neutral-300 to-neutral-100/20"></div>
+        
+        <!-- <div v-if="leftPageText" class="page left flex-1 rounded-l-md p-4" :class="{ flipping: isFlippingLeft }">
           <p>{{ leftPageText }}</p>
         </div>
 
         <div class="w-10 bg-linear-to-r from-neutral-100/20 via-neutral-300 to-neutral-100/20"></div>
 
-        <!-- Desktop: Right Page -->
         <div v-if="rightPageText" class="page right flex-1 rounded-r-md p-4" :class="{ flipping: isFlippingRight }">
           <p>{{ rightPageText }}</p>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -75,7 +88,11 @@ const isFlipping = ref(false)
 const isSwipingLeft = ref(false)
 const isSwipingRight = ref(false)
 const isMobile = ref(window.innerWidth <= 768)
+
 const pages = ref([])
+const pairs = ref([]);
+const idx = ref(0);
+
 let charsPerPage = ref(isMobile.value ? 500 : 600) // Make it reactive
 var speech = new SpeechSynthesisUtterance();
 var voices = window.speechSynthesis.getVoices();
@@ -88,7 +105,7 @@ const speak = (text, startIndex = 0) => {
   speech.voice = voices[0];
   speech.volume = 1;
   speech.rate = .8;
-  speech.pitch = 2;
+  speech.pitch = 1;
   speech.text = text.slice(startIndex);
   speech.lang = 'en-US';
   speech.onboundary = (event) => {
@@ -158,12 +175,40 @@ function splitContentIntoPages() {
     }
   }
 
-  if (pageContent.trim()) pages.value.push(pageContent.trim()) // Push the last page
+  if (pageContent.trim()) pages.value.push(pageContent.trim())
 
   // Ensure even number of pages for desktop
   if (!isMobile.value && pages.value.length % 2 !== 0) {
     pages.value.push('')
   }
+
+  // Group the pages into pairs
+  if (!isMobile.value) {
+    pairs.value = []
+
+
+    for (let i = 0; i < pages.value.length; i += 2) {
+      const data = {
+        content: null,
+        flipped: false
+      };
+
+      data.content = pages.value.slice(i, i + 2);
+      pairs.value.push(data);
+    }
+
+    const tmp = pairs.value[0];
+    pairs.value.shift();
+    pairs.value.reverse();
+    pairs.value.unshift(tmp);
+  }
+}
+
+const page_flip = (index) => {
+  pairs.value[index].flipped = !pairs.value[index].flipped;
+  // add class z-50 to the element with data-index=index
+  // remove class z-50 from all other elements
+  idx.value = index;
 }
 
 // **Computed Properties**
