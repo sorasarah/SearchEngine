@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-end h-screen space-y-4 mt-14">
+  <div class="flex flex-col items-center justify-end h-screen space-y-4 mt-16">
     <div class="flex items-center space-x-2">
       <h1 class="text-3xl font-bold font-k2d">{{ book?.titre || 'Titre Inconnu' }}</h1>
       <div @click="toggleSpeech" class="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-full cursor-pointer">
@@ -58,7 +58,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useBooksStore } from '@/stores/books'
 import { Icon } from '@iconify/vue'
-import pageFlipSound from '@/assets/sounds/page-flip.mp3'
+import pageFlipSound from '@/assets/sounds/turnpage.mp3'
 
 const booksStore = useBooksStore()
 const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'))
@@ -83,16 +83,16 @@ const speak = (text, startIndex = 0) => {
   speech.voice = voices[0];
   speech.volume = 1;
   speech.rate = .8;
-  speech.pitch = 1;
-  speech.text = text;
+  speech.pitch = 2;
+  speech.text = text.slice(startIndex);
   speech.lang = 'en-US';
   speech.onboundary = (event) => {
     if (event.name === 'word') {
-      currentCharIndex = event.charIndex;
+      currentCharIndex = event.charIndex + startIndex;
     }
   };
   speechSynthesis.speak(speech);
-  console.log("je lis le texte", speech.text);
+  // console.log("je lis le texte", speech.text);
 }
 
 const toggleSpeech = () => {
