@@ -13,17 +13,17 @@
         <p>{{ currentText }}</p>
       </div>
 
-      <div v-else class="max-w-full w-full h-140 flex justify-end border border-neutral-300 rounded-md shadow-xl">
+      <div v-else class="max-w-full w-full h-140 flex justify-end border border-neutral-300 rounded-md shadow-xl !overflow-hidden">
         <div v-for="(pair, index) in pairs" :key="index" :date-index="index" class="transform-3d absolute duration-1000 flex items-end origin-left w-1/2 transition h-full transform" @click="page_flip(index)" :class="{ 
           '-rotate-y-180': pair.flipped, 
           'rotate-y-0': !pair.flipped,
           'z-10': idx === index
           }"
           >
-          <div class="absolute right-0 h-full bg-white p-4 backface-hidden ml-4">
+          <div class="absolute right-0 h-full bg-white overflow-hidden p-4 backface-hidden ml-4">
             <p>{{ pair.content[0] }}</p>
           </div>
-          <div v-if="pair.content[1]" class="absolute h-full bg-white p-4 backface-hidden -rotate-y-180">
+          <div v-if="pair.content[1]" class="absolute h-full bg-white overflow-hidden p-4 backface-hidden -rotate-y-180">
             <p>{{ pair.content[1] }}</p>
           </div>
         </div>
