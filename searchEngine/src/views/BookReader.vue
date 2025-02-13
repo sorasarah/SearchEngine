@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-end h-screen space-y-4">
+  <div class="flex flex-col items-center justify-end h-screen space-y-4 mt-14">
     <div class="flex items-center space-x-2">
       <h1 class="text-3xl font-bold font-k2d">{{ book?.titre || 'Titre Inconnu' }}</h1>
       <div @click="toggleSpeech" class="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-full cursor-pointer">
@@ -141,7 +141,7 @@ function splitContentIntoPages() {
   pages.value = []
   let sentences = content.value.match(/[^.!?]+[.!?]+/g) || [content.value]
   let pageContent = ''
-  
+
   for (let sentence of sentences) {
     // from \r\n to break line
     // sentence = sentence.replace(/(\r\n|\n|\r)/gm, "<br>");
