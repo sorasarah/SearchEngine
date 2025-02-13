@@ -63,7 +63,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useBooksStore } from '@/stores/books'
 import { Icon } from '@iconify/vue'
-import pageFlipSound from '@/assets/sounds/page-flip.mp3'
+import pageFlipSound from '@/assets/sounds/turnpage.mp3'
 
 const booksStore = useBooksStore()
 const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'))
@@ -88,16 +88,16 @@ const speak = (text, startIndex = 0) => {
   speech.voice = voices[0];
   speech.volume = 1;
   speech.rate = .8;
-  speech.pitch = 1;
-  speech.text = text;
+  speech.pitch = 2;
+  speech.text = text.slice(startIndex);
   speech.lang = 'en-US';
   speech.onboundary = (event) => {
     if (event.name === 'word') {
-      currentCharIndex = event.charIndex;
+      currentCharIndex = event.charIndex + startIndex;
     }
   };
   speechSynthesis.speak(speech);
-  console.log("je lis le texte", speech.text);
+  // console.log("je lis le texte", speech.text);
 }
 
 const toggleSpeech = () => {
@@ -146,7 +146,7 @@ function splitContentIntoPages() {
   pages.value = []
   let sentences = content.value.match(/[^.!?]+[.!?]+/g) || [content.value]
   let pageContent = ''
-  
+
   for (let sentence of sentences) {
     // from \r\n to break line
     // sentence = sentence.replace(/(\r\n|\n|\r)/gm, "<br>");
