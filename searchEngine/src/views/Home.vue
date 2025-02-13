@@ -1,5 +1,5 @@
 <template>
-  <main :class="{'h-middle': filteredBooks.length, 'h-screen': !filteredBooks.length}" class="w-full flex flex-col justify-center items-center space-y-6">
+  <main :class="{'h-middle': filteredBooks.length, 'h-screen': !filteredBooks.length}" class="w-full flex flex-col justify-center items-center space-y-6 py-10">
     <div class="flex items-center space-x-2 mt-4 md:mt-0">
       <Icon icon="material-symbols-light:book-5" class="text-6xl text-primary-500" />
       <p class="text-6xl font-k2d">Bookseek</p>
@@ -10,8 +10,8 @@
   </main>
 
   <!-- Display Matching Book Cards -->
-  <div v-if="filteredBooks.length" class="container mx-auto p-4">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div v-if="filteredBooks.length" class="flex justify-center mx-auto p-4">
+    <div class="w-max grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 justify-center gap-6">
       <BookCard v-for="book in filteredBooks" :key="book.id" :book="book" />
     </div>
   </div>

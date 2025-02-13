@@ -1,26 +1,11 @@
 <template>
-  <div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-[450px]">
-    <!-- Book Cover -->
-    <img v-if="book.image" :src="BACK_URL + '/' + book.image.replace(/\\/g, '/')" :alt="book.titre"
-      class="w-full h-48 object-cover" />
-
-
-    <!-- Book Info -->
-    <div class="p-4 flex-1 flex flex-col">
-      <h2 class="text-lg font-bold text-gray-900 line-clamp-2">{{ book.titre }}</h2>
-      <h3 class="text-gray-600 text-sm">
-        {{ book.authors.map(author => author.name).join(', ') }}
-      </h3>
-      <p class="text-gray-700 mt-2 text-sm line-clamp-3">
-        {{ book.summary || "No summary available." }}
-      </p>
+  <div class="w-min min-w-40 flex flex-col hover:bg-orange-100/50 rounded-md cursor-pointer space-y-2" @click="goToBook(book)">
+    <img v-if="book.image" :src="BACK_URL + '/' + book.image.replace(/\\/g, '/')" :alt="book.titre" class="w-full h-60 object-cover rounded-md" />
+    <div class="flex-1 flex flex-col">
+      <p class="text-sm font-bold text-gray-900 font-k2d break-word leading-5">{{ book.titre }}</p>
+      <p class="text-neutral-500 text-xs"> {{ book.authors.map(author => author.name).join(', ') }}</p>
     </div>
-
-      <!-- Button (Aligned to Bottom) -->
-      <div class="p-4 text-center">
-        <button class="bg-gray-500 text-white px-4 py-2 rounded-lg w-full transition-transform duration-300 ease-in-out hover:bg-gray-700 hover:text-xl" @click="goToBook(book)">Consulter</button>
-      </div>
-    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -31,7 +16,6 @@ import { useRouter } from 'vue-router';
 const BACK_URL = import.meta.env.VITE_BACK_URL;
 const booksStore = useBooksStore();
 const router = useRouter();
-const searchQuery = ref("");
 
 const props = defineProps<{
   book: {
@@ -52,7 +36,3 @@ const goToBook = (book: any) => {
 };
 
 </script>
-
-<style scoped>
-
-</style>
