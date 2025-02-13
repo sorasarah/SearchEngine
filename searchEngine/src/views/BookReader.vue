@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center lg:justify-center h-screen space-y-4">
+  <div class="flex flex-col items-center lg:justify-center h-screen space-y-4 mx-2">
     <div class="flex flex-col sm:flex-row items-center space-x-2">
       <h1 class="text-3xl font-bold font-k2d">{{ book?.titre || 'Titre Inconnu' }}</h1>
       <div @click="toggleSpeech" class="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-full cursor-pointer">
@@ -9,7 +9,7 @@
 
     <div class="w-full sm:max-w-240 book mx-2" @click="handlePageClick" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
       <!-- Responsive Page Display -->
-      <div v-if="isMobile" class="h-140 page single rounded-md sm:p-4" :class="{ flipping: isFlipping, 'swiping-left': isSwipingLeft, 'swiping-right': isSwipingRight }">
+      <div v-if="isMobile" class="min-h-140 page single rounded-md sm:p-4" :class="{ flipping: isFlipping, 'swiping-left': isSwipingLeft, 'swiping-right': isSwipingRight }">
         <p>{{ currentText }}</p>
       </div>
 
@@ -28,16 +28,6 @@
           </div>
         </div>
         <div class="absolute z-50 right-0 left-0 mx-auto w-10 h-full bg-linear-to-r from-neutral-100/20 via-neutral-300 to-neutral-100/20"></div>
-        
-        <!-- <div v-if="leftPageText" class="page left flex-1 rounded-l-md p-4" :class="{ flipping: isFlippingLeft }">
-          <p>{{ leftPageText }}</p>
-        </div>
-
-        <div class="w-10 bg-linear-to-r from-neutral-100/20 via-neutral-300 to-neutral-100/20"></div>
-
-        <div v-if="rightPageText" class="page right flex-1 rounded-r-md p-4" :class="{ flipping: isFlippingRight }">
-          <p>{{ rightPageText }}</p>
-        </div> -->
       </div>
     </div>
 
@@ -57,13 +47,13 @@
       </div>
       <div v-else class="grid grid-cols-3 items-center space-x-4">
         <div class="justify-self-end flex items-center space-x-4">
-          <button @click="flipPrevPage" v-if="currentPage > 1" class="text-xl rounded-full shadow-md p-2">
+          <button v-if="currentPage > 1" @click="flipPrevPage" class="text-xl rounded-full shadow-md p-2">
             <Icon icon="akar-icons:chevron-left" />
           </button>
         </div>
         <p class="text-lg"><span class="font-bold">{{ currentPage }} - {{ currentPage + 1 }}</span> sur {{ totalPages }} </p>
         <div class="justify-self-start flex items-center space-x-4">
-          <button @click="flipNextPage" v-if="currentPage < totalPages" class="text-xl rounded-full shadow-md p-2">
+          <button v-if="currentPage < totalPages" @click="flipNextPage" class="text-xl rounded-full shadow-md p-2">
             <Icon icon="akar-icons:chevron-right" />
           </button>
         </div>

@@ -1,7 +1,7 @@
 <template>
   <div>
         <div :style="{ height: height + 'px' }">
-            <header v-if="!isHomePage" ref="header" class="fixed top-0 left-0 right-0 flex justify-between items-center p-4 z-10 opacity-80">
+            <header v-if="!isHomePage" ref="header" class="fixed top-0 left-0 right-0 flex justify-between items-center bg-neutral-100/30 p-4 z-10">
                 <div class="flex items-center space-x-2 cursor-pointer" @click="goBack">
                     <Icon icon="mdi:arrow-left" class="text-2xl text-black hover:text-gray-900" />
                 </div>
