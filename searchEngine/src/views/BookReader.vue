@@ -55,7 +55,6 @@
         </button>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -64,7 +63,6 @@ import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useBooksStore } from '@/stores/books'
 import { Icon } from '@iconify/vue'
 import pageFlipSound from '@/assets/sounds/page-flip.mp3'
-// import pageFlipSound from '@/assets/sounds/turnpage.mp3'
 
 const booksStore = useBooksStore()
 const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'))
@@ -81,17 +79,23 @@ let charsPerPage = ref(isMobile.value ? 500 : 600) // Make it reactive
 var speech = new SpeechSynthesisUtterance();
 var voices = window.speechSynthesis.getVoices();
 const isSpeaking = ref(false);
+let currentCharIndex = 0;
 
 const audio = new Audio(pageFlipSound)
 
-const speak = (text) => {
+const speak = (text, startIndex = 0) => {
   speech.voice = voices[2];
   speech.volume = 1;
   speech.rate = .5;
   speech.pitch = 1;
   speech.text = text;
   speech.lang = 'en-US';
-  window.speechSynthesis.speak(speech);
+  speech.onboundary = (event) => {
+    if (event.name === 'word') {
+      currentCharIndex = event.charIndex;
+    }
+  };
+  speechSynthesis.speak(speech);
   console.log("je lis le texte", speech.text);
 }
 
@@ -101,7 +105,7 @@ const toggleSpeech = () => {
     isSpeaking.value = false;
   } else {
     const textToRead = isMobile.value ? currentText.value : `${leftPageText.value} ${rightPageText.value}`;
-    speak(textToRead);
+    speak(textToRead, currentCharIndex);
     isSpeaking.value = true;
   }
 }
@@ -229,7 +233,7 @@ function flipNextPage() {
         currentPage.value++
         isFlippingRight.value = false
         if (isSpeaking.value) {
-          speak(currentText.value);
+          speak(`${leftPageText.value} ${rightPageText.value}`);
         }
       }, 600)
     }
@@ -257,18 +261,12 @@ function flipPrevPage() {
         currentPage.value--
         isFlippingLeft.value = false
         if (isSpeaking.value) {
-          speak(currentText.value);
+          speak(`${leftPageText.value} ${rightPageText.value}`);
         }
       }, 600)
     }
   }
 }
-// **Audio Narration**
-// function startAudioNarration() {
-//   const utterance = new SpeechSynthesisUtterance(currentText.value)
-//   utterance.lang = 'fr-FR' // Set the language to French
-//   speechSynthesis.speak(utterance)
-// }
 </script>
 <style scoped>
 .book-container {
