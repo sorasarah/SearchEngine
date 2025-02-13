@@ -6,6 +6,7 @@ export const useBooksStore = defineStore('books', () => {
   const books = ref<any[]>([]);
   const recommendations = ref<any[]>([]);
   const selectedBook = ref<any | null>(null);
+  const suggestion = ref<string>('');
 
   function fetchBooks() {
 
@@ -28,8 +29,7 @@ export const useBooksStore = defineStore('books', () => {
       .then((response) => {
         books.value = response.data.books
         recommendations.value = response.data.recommendations
-        console.log('Books fetched:', books.value);
-
+        suggestion.value = response.data.suggestion
       })
       .catch((error) => {
         console.error('Error fetching books:', error);
@@ -43,6 +43,8 @@ export const useBooksStore = defineStore('books', () => {
   return { 
     books, 
     selectedBook,
+    recommendations,
+    suggestion,
     fetchBooks, 
     setSelectedBook,
     search,
