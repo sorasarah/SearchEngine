@@ -1,10 +1,10 @@
 <template>
-  <div class="relative w-full max-w-lg">
+  <div class="relative w-full max-w-xl px-2">
     <!-- Search Input -->
-    <div>
+    <div class="flex group rounded-md focus-within:ring-2 focus-within:ring-blue-500/50">
       <input
         type="text"
-        class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+        class="border-l border-t border-b border-gray-300 rounded-l-md p-2 w-full outline-none"
         placeholder="Search books..."
         v-model="search"
         @input="searching = true"
@@ -12,11 +12,13 @@
         @focus="searching = true"
         @blur="stop_search"
       >
-      <Icon
-        icon="akar-icons:search"
-        class="absolute right-2 top-3 text-gray-500 cursor-pointer"
-        @click="applySearch"
-      />
+      <div class="flex items-center border-t border-r border-b border-gray-300 rounded-r-md p-2 bg-white">
+        <Icon
+          icon="akar-icons:search"
+          class="text-gray-500"
+          @click="applySearch"
+        />
+      </div>
     </div>
 
     <!-- Dropdown with Book Titles -->
