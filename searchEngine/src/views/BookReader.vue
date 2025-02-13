@@ -1,41 +1,46 @@
 <template>
-  <div class="flex flex-col items-center justify-end h-screen space-y-4">
-    <div class="flex items-center space-x-2">
+  <div class="flex flex-col items-center lg:justify-center h-screen space-y-4">
+    <div class="flex flex-col sm:flex-row items-center space-x-2">
       <h1 class="text-3xl font-bold font-k2d">{{ book?.titre || 'Titre Inconnu' }}</h1>
       <div @click="toggleSpeech" class="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-full cursor-pointer">
         <Icon :icon="isSpeaking ? 'akar-icons:pause' : 'akar-icons:play'" />
       </div>
     </div>
 
-    <div class="book" @click="handlePageClick" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
+    <div class="w-full sm:max-w-240 book mx-2" @click="handlePageClick" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
       <!-- Responsive Page Display -->
-      <div v-if="isMobile" class="page single rounded-md p-4" :class="{ flipping: isFlipping, 'swiping-left': isSwipingLeft, 'swiping-right': isSwipingRight }">
+      <div v-if="isMobile" class="h-140 page single rounded-md sm:p-4" :class="{ flipping: isFlipping, 'swiping-left': isSwipingLeft, 'swiping-right': isSwipingRight }">
         <p>{{ currentText }}</p>
       </div>
 
-      <div v-else class="h-140 flex border border-neutral-300 rounded-md shadow-xl">
+      <div v-else class="max-w-full w-full h-140 flex border border-neutral-300 rounded-md shadow-xl">
         <!-- Desktop: Left Page (Only Display if Not First Page) -->
-        <div v-if="leftPageText" class="page left rounded-l-md p-4" :class="{ flipping: isFlippingLeft }">
+        <div v-if="leftPageText" class="page left flex-1 rounded-l-md p-4" :class="{ flipping: isFlippingLeft }">
           <p>{{ leftPageText }}</p>
         </div>
-        <div class="flex-1 w-10 bg-linear-to-r from-neutral-100/20 via-neutral-300 to-neutral-100/20"></div>
+
+        <div class="w-10 bg-linear-to-r from-neutral-100/20 via-neutral-300 to-neutral-100/20"></div>
 
         <!-- Desktop: Right Page -->
-        <div v-if="rightPageText" class="page right rounded-r-md p-4" :class="{ flipping: isFlippingRight }">
+        <div v-if="rightPageText" class="page right flex-1 rounded-r-md p-4" :class="{ flipping: isFlippingRight }">
           <p>{{ rightPageText }}</p>
         </div>
       </div>
     </div>
 
     <div class="flex flex-col items-center justify-center">
-      <div v-if="isMobile" class="grid grid-cols-3 items-center">
-        <button @click="flipPrevPage" class="nav-button left" :class="{ 'opacity-0': currentPage > 1 }">
-          <Icon icon="akar-icons:chevron-left" />
-        </button>
+      <div v-if="isMobile" class="grid grid-cols-3 items-center space-x-4">
+        <div class="justify-self-end flex items-center space-x-4">
+          <button @click="flipPrevPage" v-if="currentPage > 1" class="nav-button left">
+            <Icon icon="akar-icons:chevron-left" />
+          </button>
+        </div>
         <p class="text-lg"><span class="font-bold">{{ currentPage }}</span> sur {{ totalPages }} </p>
-        <button @click="flipNextPage" v-if="currentPage < totalPages" class="nav-button right ml-5">
-          <Icon icon="akar-icons:chevron-right" />
-        </button>
+        <div class="justify-self-start flex items-center space-x-4">
+          <button @click="flipNextPage" v-if="currentPage < totalPages" class="nav-button right ml-5">
+            <Icon icon="akar-icons:chevron-right" />
+          </button>
+        </div>
       </div>
       <div v-else class="grid grid-cols-3 items-center space-x-4">
         <div class="justify-self-end flex items-center space-x-4">
@@ -114,7 +119,7 @@ speech.onend = () => {
 const updateLayout = () => {
   const previousPage = currentPage.value // Store the current page
   isMobile.value = window.innerWidth <= 768
-  charsPerPage.value = isMobile.value ? 800 : 1200 // Adjust character limit dynamically
+  charsPerPage.value = isMobile.value ? 1200 : 1000 // Adjust character limit dynamically
   splitContentIntoPages() // Recalculate pages
   currentPage.value = previousPage // Restore the current page
 }
@@ -290,14 +295,10 @@ function flipPrevPage() {
   justify-content: center;
   align-items: center;
   position: relative;
-  width: 900px;
-  height: 600px;
   perspective: 1500px;
 }
 
 .page {
-  width: 440px;
-  height: 100%;
   background: #fff;
   display: flex;
   justify-content: center;
@@ -317,13 +318,6 @@ function flipPrevPage() {
 .page.right.flipping {
   transform-origin: left center;
   animation: flipRight 0.6s forwards;
-}
-
-.page.single {
-  width: 90%;
-  max-width: 500px;
-  height: 100%;
-  border-radius: 8px;
 }
 
 .page-content {
@@ -359,11 +353,6 @@ function flipPrevPage() {
 
 /* **Responsive Styles** */
 @media screen and (max-width: 768px) {
-  .book {
-    width: 100%;
-    height: 80%;
-  }
-
   .page {
     width: 90%;
     max-width: 500px;
