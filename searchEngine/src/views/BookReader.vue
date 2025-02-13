@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-center h-screen space-y-4">
+  <div class="flex flex-col items-center justify-end h-screen space-y-4">
     <div class="flex items-center space-x-2">
       <h1 class="text-3xl font-bold font-k2d">{{ book?.titre || 'Titre Inconnu' }}</h1>
       <div @click="toggleSpeech" class="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-full cursor-pointer">
@@ -80,10 +80,10 @@ let currentCharIndex = 0;
 const audio = new Audio(pageFlipSound)
 
 const speak = (text, startIndex = 0) => {
-  speech.voice = voices[2];
+  speech.voice = voices[0];
   speech.volume = 1;
-  speech.rate = .5;
-  speech.pitch = 2;
+  speech.rate = .8;
+  speech.pitch = 1;
   speech.text = text;
   speech.lang = 'en-US';
   speech.onboundary = (event) => {
@@ -141,8 +141,10 @@ function splitContentIntoPages() {
   pages.value = []
   let sentences = content.value.match(/[^.!?]+[.!?]+/g) || [content.value]
   let pageContent = ''
-
+  
   for (let sentence of sentences) {
+    // from \r\n to break line
+    // sentence = sentence.replace(/(\r\n|\n|\r)/gm, "<br>");
     if ((pageContent + sentence).length > charsPerPage.value) {
       pages.value.push(pageContent.trim())
       pageContent = sentence
