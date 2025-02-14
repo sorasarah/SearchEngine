@@ -1,8 +1,8 @@
 <template>
-  <main :class="{'h-middle': filteredBooks.length, 'h-screen': !filteredBooks.length}" class="w-full flex flex-col justify-center items-center space-y-6 py-10">
-    <div class="flex items-center space-x-2 mt-4 md:mt-0">
-      <Icon icon="material-symbols-light:book-5" class="text-6xl text-primary-500" />
-      <p class="text-6xl font-k2d">Bookseek</p>
+  <main :class="{'h-middle': filteredBooks.length, 'h-screen': !filteredBooks.length}" class="w-full flex flex-col justify-center items-center space-y-4 py-10">
+    <div class="flex items-center space-x-2">
+      <Icon icon="material-symbols-light:book-5" class="text-4xl sm:text-6xl text-primary-500" />
+      <p class="text-4xl sm:text-6xl font-k2d">Bookseek</p>
     </div>
 
     <!-- Search Component (Dropdown with Titles) -->
@@ -27,10 +27,6 @@ import BookCard from '@/components/bookCard.vue';
 const booksStore = useBooksStore();
 const searchQuery = ref(''); // Define searchQuery
 const filteredBooks = ref<any[]>([]); // Store list of matching books;
-
-onMounted(() => {
-  booksStore.fetchBooks();
-});
 
 const updateBooks = (books: any[]) => {
   filteredBooks.value = books;

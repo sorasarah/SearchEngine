@@ -9,7 +9,6 @@ export const useBooksStore = defineStore('books', () => {
   const suggestion = ref<string>('');
 
   function fetchBooks() {
-
     axios.get(import.meta.env.VITE_API_URL + '/books/')
       .then((response) => {
         books.value = response.data
@@ -18,6 +17,17 @@ export const useBooksStore = defineStore('books', () => {
       })
       .catch((error) => {
         console.error('Error fetching books:', error);
+      });
+  }
+
+  async function get (id: number) {
+    await axios.get(import.meta.env.VITE_API_URL + '/books/' + id)
+      .then((response) => {
+        selectedBook.value = response.data
+        console.log('Book fetched:', selectedBook.value);
+      })
+      .catch((error) => {
+        console.error('Error fetching book:', error);
       });
   }
 
@@ -48,5 +58,6 @@ export const useBooksStore = defineStore('books', () => {
     fetchBooks, 
     setSelectedBook,
     search,
+    get
   };
 });

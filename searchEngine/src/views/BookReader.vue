@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center lg:justify-center h-screen space-y-4 mx-2">
+  <div class="flex flex-col items-center lg:justify-center h-full space-y-10 mx-2">
     <div class="flex flex-col sm:flex-row items-center space-x-2">
       <h1 class="text-3xl font-bold font-k2d">{{ book?.titre || 'Titre Inconnu' }}</h1>
       <div @click="toggleSpeech" class="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-full cursor-pointer">
@@ -14,19 +14,22 @@
       </div>
 
       <div v-else class="max-w-full w-full h-140 flex justify-end border border-neutral-300 rounded-md shadow-xl !overflow-hidden">
-        <div v-for="(pair, index) in pairs" :key="index" :date-index="index" class="transform-3d absolute duration-1000 flex items-end origin-left w-1/2 transition h-full transform" @click="page_flip(index)" :class="{ 
-          '-rotate-y-180': pair.flipped, 
-          'rotate-y-0': !pair.flipped,
-          'z-10': idx === index
-          }"
-          >
-          <div class="absolute right-0 h-full bg-white overflow-hidden p-4 backface-hidden ml-4">
-            <p>{{ pair.content[0] }}</p>
+        <template v-for="(pair, index) in pairs" :key="index">
+          <!-- SHow just if index is in the range of idx - 1 && idx + 1-->
+          <div v-if="index >= idx - 2 && index <= idx + 2" :date-index="index" class="transform-3d absolute duration-1000 flex items-end origin-left w-1/2 transition h-full transform" @click="page_flip(index)" :class="{ 
+            '-rotate-y-180': pair.flipped, 
+            'rotate-y-0': !pair.flipped,
+            'z-10': idx === index
+            }"
+            >
+            <div class="absolute right-0 h-full bg-white overflow-hidden p-4 backface-hidden ml-4">
+              <p>{{ pair.content[0] }}</p>
+            </div>
+            <div v-if="pair.content[1]" class="absolute h-full bg-white overflow-hidden p-4 backface-hidden -rotate-y-180">
+              <p>{{ pair.content[1] }}</p>
+            </div>
           </div>
-          <div v-if="pair.content[1]" class="absolute h-full bg-white overflow-hidden p-4 backface-hidden -rotate-y-180">
-            <p>{{ pair.content[1] }}</p>
-          </div>
-        </div>
+        </template>
         <div class="absolute z-50 right-0 left-0 mx-auto w-10 h-full bg-linear-to-r from-neutral-100/20 via-neutral-300 to-neutral-100/20"></div>
       </div>
     </div>
@@ -47,13 +50,13 @@
       </div>
       <div v-else class="grid grid-cols-3 items-center space-x-4">
         <div class="justify-self-end flex items-center space-x-4">
-          <button v-if="currentPage > 1" @click="flipPrevPage" class="text-xl rounded-full shadow-md p-2">
+          <button v-if="currentPage > 1" @click="page_flip(currentPage - 3, false)" class="text-xl rounded-full shadow-md p-2">
             <Icon icon="akar-icons:chevron-left" />
           </button>
         </div>
-        <p class="text-lg"><span class="font-bold">{{ currentPage }} - {{ currentPage + 1 }}</span> sur {{ totalPages }} </p>
+        <p class="text-lg"><span class="font-bold">{{ currentPage - 1 }} - {{ currentPage }}</span> sur {{ totalPages }} </p>
         <div class="justify-self-start flex items-center space-x-4">
-          <button v-if="currentPage < totalPages" @click="flipNextPage" class="text-xl rounded-full shadow-md p-2">
+          <button v-if="currentPage < totalPages" @click="page_flip(currentPage - 1)" class="text-xl rounded-full shadow-md p-2">
             <Icon icon="akar-icons:chevron-right" />
           </button>
         </div>
@@ -63,13 +66,16 @@
 </template>
 
 <script setup>
+import { useRouter, useRoute } from 'vue-router';
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useBooksStore } from '@/stores/books'
 import { Icon } from '@iconify/vue'
 import pageFlipSound from '@/assets/sounds/turnpage.mp3'
 
+const route = useRoute()
+
 const booksStore = useBooksStore()
-const book = ref(booksStore.selectedBook || JSON.parse(localStorage.getItem('selectedBook') || 'null'))
+const book = ref(booksStore.selectedBook || null)
 const content = ref('')
 const currentPage = ref(1)
 const isFlippingLeft = ref(false)
@@ -132,8 +138,15 @@ const updateLayout = () => {
 }
 
 // **Initialize Component**
-onMounted(() => {
-  if (!book.value) return
+watch(() => booksStore.selectedBook, () => {
+  book.value = booksStore.selectedBook;
+});
+
+onMounted(async () => {
+  if (!book.value) {
+    const ID = route.params.id;
+    await booksStore.get(parseInt(ID));
+  }
   content.value = book.value.content?.replace(/<[^>]*>/g, '').trim() || 'No content available'
 
   updateLayout()
@@ -194,11 +207,15 @@ function splitContentIntoPages() {
   }
 }
 
-const page_flip = (index) => {
+const page_flip = (index, increment = true) => {
+  console.log(index);
   pairs.value[index].flipped = !pairs.value[index].flipped;
-  // add class z-50 to the element with data-index=index
-  // remove class z-50 from all other elements
   idx.value = index;
+  
+  if (increment) currentPage.value = index + 3;
+  else currentPage.value = index + 1;
+
+  audio.play() // Play the sound
 }
 
 // **Computed Properties**
@@ -268,7 +285,7 @@ function flipNextPage() {
       isFlippingRight.value = true
       audio.play() // Play the sound
       setTimeout(() => {
-        currentPage.value++
+        // currentPage.value++
         isFlippingRight.value = false
         if (isSpeaking.value) {
           speak(`${leftPageText.value} ${rightPageText.value}`);
@@ -296,7 +313,7 @@ function flipPrevPage() {
       isFlippingLeft.value = true
       audio.play() // Play the sound
       setTimeout(() => {
-        currentPage.value--
+        // currentPage.value--
         isFlippingLeft.value = false
         if (isSpeaking.value) {
           speak(`${leftPageText.value} ${rightPageText.value}`);

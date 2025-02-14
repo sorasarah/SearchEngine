@@ -59,7 +59,7 @@ const emit = defineEmits(["update:search"]);
 watch(search, () => {
   clearTimeout(timeout);
   if (search.value) {
-    timeout = setTimeout(updateResults, 300);
+    timeout = setTimeout(updateResults, 100);
   } else {
     books.value = [];
     searching.value = false;
